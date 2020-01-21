@@ -73,3 +73,7 @@ mathjax_config = {
     'extensions': ['tex2jax.js'],
     'jax': ['input/TeX', 'output/HTML-CSS'],
 }
+
+# --- read the docs ----------------
+# contents.rst not found  error
+master_doc = 'index'
