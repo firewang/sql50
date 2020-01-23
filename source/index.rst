@@ -9,8 +9,8 @@ Welcome to sql50's documentation!
 .. toctree::
    :maxdepth: 2
 
-   sqlserver
-   hhh
+   sqlserver_ch1
+
    
 
 Indices and tables
