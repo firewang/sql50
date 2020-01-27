@@ -316,7 +316,18 @@ s1.score < s2.score)
 
 + 9.查询所有课程成绩小于60分的同学的学号、姓名；
 
+```sql
+SELECT t.sid, s.sname
+FROM
+	(SELECT DISTINCT sid
+	FROM Score
+	GROUP BY sid
+	HAVING MAX(score) < 60) t
+LEFT JOIN Student s
+ON t.sid = s.sid
+```
 
+![sql50_9](./_static/sql50_9.png)
 
 
 
@@ -338,17 +349,185 @@ order by a.sid
 
 
 
-+ 查询至少有一门课与学号为“01”的同学所学相同的同学的学号和姓名；
-+ 查询和"01"号的同学学习的课程完全相同的其他同学的学号和姓名
-+ 把“SC”表中“张三”老师教的课的成绩都更改为此课程的平均成绩；
-+ 查询没学过"张三"老师讲授的任一门课程的学生姓名
-+ 查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
-+ 检索"01"课程分数小于60，按分数降序排列的学生信息
-+ 按平均成绩从高到低显示所有学生的平均成绩
-+ 查询各科成绩最高分、最低分和平均分：以如下形式显示：课程ID，课程name，最高分，最低分，平均分，及格率
-+ 按各科平均成绩从低到高和及格率的百分数从高到低顺序
-+ 查询学生的总成绩并进行排名
-+ 查询不同老师所教不同课程平均分从高到低显示
++ 11.查询至少有一门课与学号为“01”的同学所学相同的同学的学号和姓名
+
+```sql
+select distinct st.sid,st.sname from
+Score s, Student st
+where st.sid = s.sid
+and s.cid in 
+(select s.cid from
+Score s, Student st
+where st.sid = s.sid
+and st.sid = '01')
+and st.sid <> '01'
+order by st.sid
+```
+
+![sql50_11](./_static/sql50_11.png)
+
+
+
++ 12.查询和"01"号的同学学习的课程完全相同的其他同学的学号和姓名
+
+```sql
+-- 此题和11题类似，在11题基础上加上课程数量的限制即可
+select st.sid,st.sname from
+Score s, Student st
+where st.sid = s.sid
+group by st.sid, st.sname
+having count(s.cid) = 
+(select count(s.cid) from
+Score s, Student st
+where st.sid = s.sid
+and st.sid = '01')
+and st.sid <> '01'
+order by st.sid
+```
+
+![sql50_12](./_static/sql50_12.png)
+
+
+
++ 13.把“Score”表中“张三”老师教的课的成绩都更改为此课程的平均成绩
+
+```sql
+-- update题
+```
+
+
+
++ 14.查询没学过"张三"老师讲授的任一门课程的学生姓名
+
+```sql
+-- 和第六题一样
+SELECT 
+sid, sname
+FROM Student
+where 
+sid not in (
+  select s.sid
+  from Score s, Course c, Teacher t 
+  where s.cid = c.cid
+  and c.tid=t.tid 
+  and t.tname=N'张三')
+```
+
+
+
++ 15.查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
+
+```sql
+SELECT 
+s.sid, s.sname,AVG(sc.score) as mean_score
+FROM Student s, Score sc
+where 
+s.sid = sc.sid
+and sc.score < 60
+group by s.sid, s.sname
+having count(sc.cid) >1
+```
+
+![sql50_15](./_static/sql50_15.png)
+
+
+
++ 16.检索"01"课程分数小于60，按分数降序排列的学生信息
+
+```sql
+SELECT 
+s.*, sc.score
+FROM Student s, Score sc
+where 
+s.sid = sc.sid
+and sc.cid = '01'
+and sc.score < 60
+order by sc.score desc 
+```
+
+![sql50_16](./_static/sql50_16.png)
+
+
+
++ 17.按平均成绩从高到低显示所有学生的平均成绩
+
+```sql
+SELECT 
+s.sid,s.sname, AVG(sc.score) as mean_score
+FROM Student s, Score sc
+where 
+s.sid = sc.sid
+group by s.sid,s.sname
+order by AVG(sc.score) desc
+```
+
+![sql50_17](./_static/sql50_17.png)
+
+
+
++ 18.查询各科成绩最高分、最低分和平均分：以如下形式显示：课程ID，课程name，最高分，最低分，平均分，及格率
+
+```sql
+select 
+  s.cid, 
+  c.cname, 
+  max(s.score) as max_score,
+  min(s.score) as min_score,
+  AVG(s.score) as mean_score,
+  AVG (case when s.score >= 60 then 1.0 else 0.0 end ) as passrate 
+from Score s, Course c
+where s.cid = c.cid
+group by s.cid,c.cname
+```
+
+![sql50_18](./_static/sql50_18.png)
+
+
+
++ 19.按各科平均成绩从低到高和及格率的百分数从高到低顺序
+
+```sql
+-- 就是第十八题的排序
+select 
+  s.cid, 
+  c.cname, 
+  AVG(s.score) as mean_score,
+  AVG (case when s.score >= 60 then 1.0 else 0.0 end ) as passrate 
+from Score s, Course c
+where s.cid = c.cid
+group by s.cid,c.cname
+order by AVG(s.score) asc, AVG (case when s.score > 60 then 1.0 else 0.0 end ) desc
+```
+
+![sql50_19](./_static/sql50_19.png)
+
+
+
++ 20.查询学生的总成绩并进行排名
+
+```sql
+-- 使用rank()进行排名
+select 
+  s.sid,
+  s.sname,
+  sum(sc.score) as total_score,
+  rank() over(order by sum(sc.score) desc) as score_rank
+from Student s, Score sc
+where s.sid = sc.sid
+group by  s.sid,  s.sname
+order by sum(sc.score) desc
+```
+
+![sql50_20](./_static/sql50_20.png)
+
+
+
++ 21.查询不同老师所教不同课程平均分从高到低显示
+
+
+
+
+
 + 查询所有课程的成绩第2名到第3名的学生信息及该课程成绩
 + 统计各科成绩各分数段人数：课程编号,课程名称,[100-85],[85-70],[70-60],[0-60]及所占百分比
 + 查询学生平均成绩及其名次
@@ -372,5 +551,4 @@ order by a.sid
 + 查询下周过生日的学生
 + 查询本月过生日的学生
 + 查询下月过生日的学生
-+ 
 
