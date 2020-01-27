@@ -521,7 +521,7 @@ SQL Server 提供了可用于执行特定操作的[内置函数](https://docs.mi
 
 
 
-## 2.6 Transact-SQL 注释
+## 2.7 Transact-SQL 注释
 
 [注释](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188621(v=sql.105))是程序代码中不执行的文本字符串（也称为备注）。注释可用于对代码进行说明或暂时禁用正在进行诊断的部分 Transact-SQL 语句和批。使用注释对代码进行说明，便于将来对程序代码进行维护。
 
@@ -532,7 +532,7 @@ SQL Server 支持两种类型的注释字符：
 
 
 
-## 2.7 Transact-SQL 保留关键字
+## 2.8 Transact-SQL 保留关键字
 
 Microsoft SQL Server 将[保留关键字](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189822(v=sql.105))用于定义、操作和访问数据库。保留关键字是 SQL Server 使用的 Transact-SQL 语言语法的一部分，用于分析和理解 Transact-SQL 语句和批处理。尽管在 Transact-SQL 脚本中使用 SQL Server 保留关键字作为标识符和对象名在语法上是可行的，但规定只能使用分隔标识符。
 
@@ -603,7 +603,7 @@ Microsoft SQL Server 将[保留关键字](https://docs.microsoft.com/zh-cn/previ
 
 
 
-## 2.8 Transact-SQL 语法约定
+## 2.9 Transact-SQL 语法约定
 
 | 约定          | 使用场景                                                     |
 | :------------ | :----------------------------------------------------------- |

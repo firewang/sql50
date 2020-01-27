@@ -98,3 +98,279 @@ https://zhuanlan.zhihu.com/p/43289968
 
 https://www.jianshu.com/p/3f27a6dced16
 
+### 2.5.1 表结构
+
+```sql
+-- 创建数据库
+create database school;
+use school;
+```
+
+
+
+```sql
+-- 建表
+-- 学生表：学生编号,学生姓名, 出生年月,学生性别
+create table Student(sid varchar(10),sname nvarchar(10),sage datetime,ssex nvarchar(10));
+insert into Student values('01' , N'赵雷' , '1990-01-01' , N'男');
+insert into Student values('02' , N'钱电' , '1990-12-21' , N'男');
+insert into Student values('03' , N'孙风' , '1990-05-20' , N'男');
+insert into Student values('04' , N'李云' , '1990-08-06' , N'男');
+insert into Student values('05' , N'周梅' , '1991-12-01' , N'女');
+insert into Student values('06' , N'吴兰' , '1992-03-01' , N'女');
+insert into Student values('07' , N'郑竹' , '1989-07-01' , N'女');
+insert into Student values('08' , N'王菊' , '1990-01-20' , N'女');
+-- 课程表：课程编号, 课程名称, 教师编号
+create table Course(cid varchar(10),cname nvarchar(10),tid varchar(10));
+insert into Course values('01' , N'语文' , '02');
+insert into Course values('02' , N'数学' , '01');
+insert into Course values('03' , N'英语' , '03');
+-- 教师表：教师编号,教师姓名
+create table Teacher(tid varchar(10),tname nvarchar(10));
+insert into Teacher values('01' , N'张三');
+insert into Teacher values('02' , N'李四');
+insert into Teacher values('03' , N'王五');
+-- 成绩表：学生编号,课程编号,分数
+create table Score(sid varchar(10),cid varchar(10),score decimal(18,1));
+insert into Score values('01' , '01' , 80);
+insert into Score values('01' , '02' , 90);
+insert into Score values('01' , '03' , 99);
+insert into Score values('02' , '01' , 70);
+insert into Score values('02' , '02' , 60);
+insert into Score values('02' , '03' , 80);
+insert into Score values('03' , '01' , 80);
+insert into Score values('03' , '02' , 80);
+insert into Score values('03' , '03' , 80);
+insert into Score values('04' , '01' , 50);
+insert into Score values('04' , '02' , 30);
+insert into Score values('04' , '03' , 20);
+insert into Score values('05' , '01' , 76);
+insert into Score values('05' , '02' , 87);
+insert into Score values('06' , '01' , 31);
+insert into Score values('06' , '03' , 34);
+insert into Score values('07' , '02' , 89);
+insert into Score values('07' , '03' , 98);
+```
+
+
+
+![table_scheme](./_static/sql50.jpg)
+
+
+
+```sql
+-- 查看每个人的年龄，性别，三门课成绩
+select
+sid,sname,sage,ssex,[语文],[数学],[英语]
+from
+(
+select a.sid,a.sname,a.sage,a.ssex,c.cname,b.score
+  from Student a
+  left join Score b 
+  on a.sid=b.sid
+  left join Course c
+  on b.cid = c.cid
+) source_table
+pivot(
+  sum(score) for
+cname in (
+  [语文],[数学],[英语]
+)
+     ) t
+```
+
+![all_info](./_static/all_info.png)
+
+
+
+### 2.5.2 50题
+
++ 1.查询“01”课程比“02”课程成绩高的所有学生的学号
+
+```sql
+select * from 
+(select * from Score where Score.cid = '01') s1,
+(select * from Score where Score.cid = '02') s2
+where 
+s1.sid = s2.sid and
+s1.score > s2.score
+```
+
+![sql50_1](./_static/sql50_1.png)
+
+
+
++ 2.查询平均成绩大于60分的同学的学号和平均成绩
+
+```sql
+SELECT sid,AVG( score )  as mean_score
+FROM Score 
+GROUP BY sid 
+HAVING AVG( score ) > 60;
+```
+
+![sql50_2](./_static/sql50_2.png)
+
+
+
++ 3.查询所有同学的学号、姓名、选课数、总成绩
+
+```sql
+SELECT a.sid,a.sname, 
+count(b.cid) as '选课数', 
+sum(b.score) as '总成绩'
+FROM Student a
+left join Score b
+on a.sid = b.sid
+group by a.sid,a.sname
+order by a.sid
+```
+
+![sql50_3](./_static/sql50_3.png)
+
+
+
++ 4.查询姓“李”的老师的个数；
+
+```sql
+SELECT 
+count(1)
+FROM Teacher
+where tname like N'李%'  --建表时字段设置为了Unicode,因此查询也需要加上N
+```
+
+
+
++ 5.查询没学过“张三”老师课的同学的学号、姓名；
+
+```sql
+-- 子查询将张三老师课程的学生id找出来
+SELECT 
+sid, sname
+FROM Student
+where 
+sid not in (
+  select s.sid
+  from Score s, Course c, Teacher t 
+  where s.cid = c.cid
+  and c.tid=t.tid 
+  and t.tname=N'张三')
+```
+
+![sql50_5](./_static/sql50_5.png)
+
+
+
++ 6.查询学过“张三”老师所教的课的同学的学号、姓名；
+
+```sql
+  select s.sid, st.sname
+  from Score s, Course c, Teacher t ,Student st
+  where s.cid = c.cid
+  and c.tid=t.tid 
+  and t.tname=N'张三'
+  and s.sid = st.sid
+```
+
+![sql50_6](./_static/sql50_6.png)
+
+
+
++ 7.查询学过编号“01”并且也学过编号“02”课程的同学的学号、姓名；
+
+```sql
+select * from
+Student where sid in 
+(
+select s1.sid from 
+(select * from Score where Score.cid = '01') s1,
+(select * from Score where Score.cid = '02') s2
+where 
+s1.sid = s2.sid)
+```
+
+
+
+![sql50_7](./_static/sql50_7.png)
+
+
+
++ 8.查询课程编号“01”的成绩比课程编号“02”课程低的所有同学的学号、姓名；
+
+```sql
+-- 和第一题，第七题相似
+select sid,sname from
+Student where sid in 
+(
+select s1.sid from 
+(select sid,score from Score where cid = '01') s1,
+(select sid,score from Score where cid = '02') s2
+where 
+s1.sid = s2.sid and
+s1.score < s2.score)
+```
+
+![sql50_8](./_static/sql50_8.png)
+
+
+
++ 9.查询所有课程成绩小于60分的同学的学号、姓名；
+
+
+
+
+
++ 10.查询没有学全所有课的同学的学号、姓名
+
+```sql
+-- 利用第三题的选课数
+SELECT a.sid,a.sname, 
+count(b.cid) as '选课数'
+FROM Student a
+left join Score b
+on a.sid = b.sid
+group by a.sid,a.sname
+having count(b.cid) <> (select count(distinct cid) from Course)
+order by a.sid
+```
+
+![sql50_10](./_static/sql50_10.png)
+
+
+
++ 查询至少有一门课与学号为“01”的同学所学相同的同学的学号和姓名；
++ 查询和"01"号的同学学习的课程完全相同的其他同学的学号和姓名
++ 把“SC”表中“张三”老师教的课的成绩都更改为此课程的平均成绩；
++ 查询没学过"张三"老师讲授的任一门课程的学生姓名
++ 查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
++ 检索"01"课程分数小于60，按分数降序排列的学生信息
++ 按平均成绩从高到低显示所有学生的平均成绩
++ 查询各科成绩最高分、最低分和平均分：以如下形式显示：课程ID，课程name，最高分，最低分，平均分，及格率
++ 按各科平均成绩从低到高和及格率的百分数从高到低顺序
++ 查询学生的总成绩并进行排名
++ 查询不同老师所教不同课程平均分从高到低显示
++ 查询所有课程的成绩第2名到第3名的学生信息及该课程成绩
++ 统计各科成绩各分数段人数：课程编号,课程名称,[100-85],[85-70],[70-60],[0-60]及所占百分比
++ 查询学生平均成绩及其名次
++ 查询各科成绩前三名的记录
++ 查询每门课程被选修的学生数
++ 查询出只选修了一门课程的全部学生的学号和姓名
++ 查询男生、女生人数
++ 查询名字中含有"风"字的学生信息
++ 查询同名同性学生名单，并统计同名人数
++ 查询1990年出生的学生名单(注：Student表中Sage列的类型是datetime)
++ 查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列
++ 查询不及格的课程，并按课程号从大到小排列
++ 查询课程编号为"01"且课程成绩在60分以上的学生的学号和姓名；
++ 查询选修“张三”老师所授课程的学生中，成绩最高的学生姓名及其成绩
++ 查询每门功课成绩最好的前两名
++ 统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列
++ 检索至少选修两门课程的学生学号
++ 查询选修了全部课程的学生信息
++ 查询各学生的年龄
++ 查询本周过生日的学生
++ 查询下周过生日的学生
++ 查询本月过生日的学生
++ 查询下月过生日的学生
++ 
+
