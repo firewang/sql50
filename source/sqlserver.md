@@ -630,23 +630,433 @@ where t.myrank <4
 
 
 
-+ 查询每门课程被选修的学生数
-+ 查询出只选修了一门课程的全部学生的学号和姓名
-+ 查询男生、女生人数
-+ 查询名字中含有"风"字的学生信息
-+ 查询同名同性学生名单，并统计同名人数
-+ 查询1990年出生的学生名单(注：Student表中Sage列的类型是datetime)
-+ 查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列
-+ 查询不及格的课程，并按课程号从大到小排列
-+ 查询课程编号为"01"且课程成绩在60分以上的学生的学号和姓名；
-+ 查询选修“张三”老师所授课程的学生中，成绩最高的学生姓名及其成绩
-+ 查询每门功课成绩最好的前两名
-+ 统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列
-+ 检索至少选修两门课程的学生学号
-+ 查询选修了全部课程的学生信息
-+ 查询各学生的年龄
-+ 查询本周过生日的学生
-+ 查询下周过生日的学生
-+ 查询本月过生日的学生
-+ 查询下月过生日的学生
++ 26.查询每门课程被选修的学生数
+
+```sql
+-- 此题只使用Score单表也可以
+select 
+  c.cname,
+  count(s.sid) as '选课人数'
+from Score s, Course c
+where s.cid = c.cid
+group by c.cname
+```
+
+![sql50_26](./_static/sql50_26.png)
+
+
+
++ 27.查询出只选修了一门课程的全部学生的学号和姓名
+
+```sql
+-- 此题可以在第三题基础上增加限制
+-- 没有这样的学生。
+SELECT a.sid,a.sname,
+count(b.cid) as '选课数'
+FROM Student a
+left join Score b
+on a.sid = b.sid
+group by a.sid,a.sname
+having count(b.cid) = 1
+```
+
+
+
++ 28.查询男生、女生人数
+
+```sql
+SELECT
+  ssex,
+  count(sid) as '人数'
+FROM Student
+GROUP BY ssex
+```
+
+
+
++ 29.查询名字中含有"风"字的学生信息
+
+```sql
+SELECT
+  sid,
+  sname,
+  sage,
+  ssex
+FROM Student
+WHERE sname like N'%风%'  --编码原因加了N，视实际情况而定
+```
+
+![sql50_29](./_static/sql50_29.png)
+
+
+
++ 30.查询同名同性学生名单，并统计同名人数
+
+```sql
+-- 根据姓名和性别分组即可
+SELECT
+  sname,
+  ssex,
+  count(sid)
+FROM Student
+GROUP BY sname,ssex
+```
+
+![sql50_30](./_static/sql50_30.png)
+
+
+
++ 31.查询1990年出生的学生名单(注：Student表中Sage列的类型是datetime)
+
+```sql
+SELECT
+  *
+FROM Student
+WHERE year(sage) = 1990
+```
+
+![sql50_31](./_static/sql50_31.png)
+
+
+
++ 32.查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列
+
+```sql
+-- 同第十九题
+select
+  s.cid,
+  c.cname,
+  AVG(s.score) as mean_score
+from Score s, Course c
+where s.cid = c.cid
+group by s.cid,c.cname
+order by AVG(s.score) asc, s.cid desc
+```
+
+![sql50_32](./_static/sql50_32.png)
+
+
+
++ 33.查询不及格的课程，并按课程号从大到小排列
+
+```sql
+select
+  sc.cid,
+  s.sname,
+  c.cname,
+  sc.score
+from Score sc, Course c, Student s
+where sc.cid = c.cid
+and sc.sid = s.sid
+and sc.score < 60
+order by sc.cid desc
+```
+
+![sql50_33](./_static/sql50_33.png)
+
+
+
++ 34.查询课程编号为"01"且课程成绩在60分以上的学生的学号和姓名
+
+```sql
+select
+  s.sid,
+  s.sname,
+  sc.score
+from Score sc, Course c, Student s
+where sc.cid = c.cid
+and sc.sid = s.sid
+and sc.cid = '01'
+and sc.score > 60
+```
+
+![sql50_34](./_static/sql50_34.png)
+
++ 35.查询所有学生的课程及分数情况
+
+```sql
+-- 查看每个人的年龄，性别，三门课成绩
+-- 就是在开头使用的用于便捷判断结果的 all_info
+-- 利用了pivot来行转列
+select
+sid,sname,sage,ssex,[语文],[数学],[英语]
+from
+(
+select a.sid,a.sname,a.sage,a.ssex,c.cname,b.score
+  from Student a
+  left join Score b 
+  on a.sid=b.sid
+  left join Course c
+  on b.cid = c.cid
+) source_table
+pivot(
+  sum(score) for
+cname in (
+  [语文],[数学],[英语]
+)
+     ) t
+```
+
+![sql50_35](./_static/all_info.png)
+
+
+
++ 36.查询任何一门课程成绩在70分以上的姓名、课程名称和分数
+
+```sql
+select
+  s.sname,
+  c.cname,
+  sc.score
+from Score sc, Course c, Student s
+where sc.cid = c.cid
+and sc.sid = s.sid
+and sc.score > 70
+```
+
+![sql50_36](./_static/sql50_36.png)
+
+
+
++ 37.查询课程名称为"数学"，且分数低于60的学生姓名和分数
+
+```sql
+select
+  s.sname,
+  sc.score
+from Score sc, Course c, Student s
+where sc.cid = c.cid
+and sc.sid = s.sid
+and sc.score < 60
+and c.cname = N'数学'
+```
+
+![sql50_37](./_static/sql50_37.png)
+
+
+
++ 38.查询课程编号为03且课程成绩在80分以上的学生的学号和姓名
+
+```sql
+-- 和第三十四题是一样的，混进来的题目？
+select
+  s.sid,
+  s.sname,
+  sc.score
+from Score sc, Course c, Student s
+where sc.cid = c.cid
+and sc.sid = s.sid
+and sc.cid = '03'
+and sc.score > 80
+```
+
+![sql50_38](./_static/sql50_38.png)
+
+
+
++ 39.求每门课程的学生人数
+
+```sql
+-- 混进来的题目？
+select 
+  cid,
+  count(sid)
+from Score
+group by cid
+```
+
+
+
++ 40.查询选修“张三”老师所授课程的学生中，成绩最高的学生姓名及其成绩
+
+```sql
+-- 利用 top
+select 
+   top 1 s.sid, s.sname, sc.score
+from Score sc, Course c, Teacher t, Student s
+where sc.cid = c.cid
+and c.tid=t.tid
+and sc.sid = s.sid
+and t.tname=N'张三'
+```
+
+![sql50_40](./_static/sql50_40.png)
+
+
+
++ 41.查询不同课程成绩相同的学生的学生编号、课程编号、学生成绩
+
+```sql
+-- 同表级联查询
+select
+  distinct
+  s1.sid,
+  s1.cid,
+  s1.score
+from Score s1, Score s2
+where s1.sid = s2.sid
+and s1.score = s2.score
+and s1.cid != s2.cid
+```
+
+![sql50_41](./_static/sql50_41.png)
+
+
+
++ 42.查询每门功课成绩最好的前两名
+
+```sql
+-- 同第二十二题和第二十五题
+--
+-- row_number() over(partition by 分组字段 order by 排序字段 排序方式) as 别名
+select * from (
+select
+  sc.sid,
+  s.sname,
+  s.ssex,
+  s.sage,
+  c.cname,
+  sc.score,
+  ROW_NUMBER() over(partition BY sc.cid order by score desc) as myrank
+from Score sc,Student s,Course c
+where sc.sid = s.sid
+and sc.cid = c.cid) t
+where t.myrank <3
+```
+
+![sql50_42](./_static/sql50_42.png)
+
+
+
++ 43.统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列
+
+```sql
+select
+  cid,
+  count(sid) as '选修人数'
+from Score
+group by  cid
+having count(sid) > 5
+order by count(sid) desc, cid asc
+```
+
+![sql50_34](./_static/sql50_43.png)
+
+
+
++ 44.检索至少选修两门课程的学生学号
+
+```sql
+select
+  sid,
+  count(cid) as '选修课程数'
+from Score
+group by sid
+having count(cid) >= 2
+```
+
+![sql50_44](./_static/sql50_44.png)
+
+
+
++ 45.查询选修了全部课程的学生信息
+
+```sql
+-- 同第十题（条件相反）
+SELECT a.sid,a.sname,
+count(b.cid) as '选课数'
+FROM Student a
+left join Score b
+on a.sid = b.sid
+group by a.sid,a.sname
+having count(b.cid) = (select count(distinct cid) from Course)
+order by a.sid
+```
+
+![sql50_45](./_static/sql50_45.png)
+
+
+
++ 46.查询各学生的年龄
+
+```sql
+-- 利用SYSDATETIME()/getdate() 获取当前时间
+SELECT SYSDATETIME();
+SELECT 
+	sid, 
+	sname,
+	year(SYSDATETIME()) - year(sage) AS '年龄'
+FROM Student
+```
+
+![sql50_46](./_static/sql50_46.png)
+
+
+
++ 47.查询本周过生日的学生
+
+```sql
+select getdate();
+select DATEADD(wk, DATEDIFF(wk,0,getdate()), 0);  -- 本周周一
+select DATEADD(wk, DATEDIFF(wk,0,getdate()), 7) ; -- 下周周一
+SELECT 
+  *
+FROM Student 
+where DATEADD(year, year(getdate())-year(sage), sage) between
+DATEADD(wk, DATEDIFF(wk,0,getdate()), 0) 
+and DATEADD(wk, DATEDIFF(wk,0,getdate()), 7) 
+```
+
+![sql50_47](./_static/sql50_47.png)
+
+
+
++ 48.查询下周过生日的学生
+
+```sql
+-- 同第四十七题
+select getdate();
+select DATEADD(wk, DATEDIFF(wk,0,getdate()), 0);  -- 本周周一
+select DATEADD(wk, DATEDIFF(wk,0,getdate()), 7) ; -- 下周周一
+SELECT 
+  *
+FROM Student 
+where DATEADD(year, year(getdate())-year(sage), sage) between
+DATEADD(wk, DATEDIFF(wk,0,getdate()), 7) 
+and DATEADD(wk, DATEDIFF(wk,0,getdate()), 14) 
+```
+
+
+
++ 49.查询本月过生日的学生
+
+```sql
+-- 利用getdate() 获取当前时间, month()获得月份
+SELECT getdate();
+select 
+  sid,
+  sname,
+  sage,
+  ssex
+from Student 
+where month(sage) = month(getdate())
+```
+
+![sql50_49](./_static/sql50_49.png)
+
+
+
++ 50.查询下月过生日的学生
+
+```sql
+-- 同第四十九题
+SELECT getdate();
+select 
+  sid,
+  sname,
+  sage,
+  ssex
+from Student 
+where month(sage) = month(getdate())+1
+```
 
