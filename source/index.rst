@@ -11,6 +11,7 @@ Welcome to sql50's documentation!
 
    sqlserver_ch1
    T-SQL
+   sql50
 
    
 

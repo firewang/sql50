@@ -524,14 +524,112 @@ order by sum(sc.score) desc
 
 + 21.查询不同老师所教不同课程平均分从高到低显示
 
+```sql
+select 
+  c.cname,
+  t.tname,
+  AVG(s.score) as mean_score
+from Course c,Score s, Teacher t
+where c.tid = t.tid
+and c.cid = s.cid
+group by c.cname,t.tname
+order by AVG(s.score) desc
+```
+
+![sql50_21](./_static/sql50_21.png)
 
 
 
++ 22.查询所有课程的成绩第2名到第3名的学生信息及该课程成绩
 
-+ 查询所有课程的成绩第2名到第3名的学生信息及该课程成绩
-+ 统计各科成绩各分数段人数：课程编号,课程名称,[100-85],[85-70],[70-60],[0-60]及所占百分比
-+ 查询学生平均成绩及其名次
-+ 查询各科成绩前三名的记录
+```sql
+-- row_number() over(partition by 分组字段 order by 排序字段 排序方式) as 别名
+select * from (
+select 
+  sc.sid,
+  s.sname,
+  s.ssex,
+  s.sage,
+  c.cname,
+  sc.score,
+  ROW_NUMBER() over(partition BY sc.cid order by score desc) as myrank
+from Score sc,Student s,Course c
+where sc.sid = s.sid
+and sc.cid = c.cid) t
+where t.myrank in (2,3)
+```
+
+![sql50_22](./_static/sql50_22.png)
+
+
+
++ 23.统计各科成绩各分数段人数：课程编号,课程名称,[100-85],[85-70],[70-60],[0-60]及所占百分比
+
+```sql
+-- 有点琐碎，不知道有没有简便方法
+select 
+  c.cid,
+  c.cname,
+  SUM(case when sc.score >= 85 and sc.score <= 100 then 1.0 else 0.0 end ) as '[100-85]',
+  SUM(case when sc.score >= 85 and sc.score <= 100 then 1.0 else 0.0 end ) / count(sc.sid) as '[100-85]百分比',
+  SUM(case when sc.score >= 70 and sc.score <  85 then 1.0 else 0.0 end ) as '[85-70]',
+  SUM(case when sc.score >= 70 and sc.score <  85 then 1.0 else 0.0 end )/ count(sc.sid) as '[85-70]百分比',
+  SUM(case when sc.score >= 60 and sc.score <  70 then 1.0 else 0.0 end ) as '[70-60]',
+  SUM(case when sc.score >= 60 and sc.score <  70 then 1.0 else 0.0 end )/ count(sc.sid) as '[70-60]百分比',
+  SUM(case when sc.score >= 0 and sc.score  <  60 then 1.0 else 0.0 end ) as '[60-0]',
+  SUM(case when sc.score >= 0 and sc.score  <  60 then 1.0 else 0.0 end ) / count(sc.sid) as '[60-0]百分比'
+from Score sc,Course c
+where c.cid =sc.cid
+group by c.cid,c.cname
+```
+
+![sql50_23](./_static/sql50_23.png)
+
+
+
++ 24.查询学生平均成绩及其名次
+
+```sql
+--这题和第二十题是一样的
+select 
+  s.sid,
+  s.sname,
+  AVG(sc.score) as mean_score,
+  rank() over(order by AVG(sc.score) desc) as score_rank
+from Student s, Score sc
+where s.sid = sc.sid
+group by  s.sid,  s.sname
+order by AVG(sc.score) desc
+```
+
+![sql50_24](./_static/sql50_24.png)
+
+
+
++ 25.查询各科成绩前三名的记录
+
+```sql
+-- 和第二十二题一样
+-- row_number() over(partition by 分组字段 order by 排序字段 排序方式) as 别名
+select * from (
+select 
+  sc.sid,
+  s.sname,
+  s.ssex,
+  s.sage,
+  c.cname,
+  sc.score,
+  ROW_NUMBER() over(partition BY sc.cid order by score desc) as myrank
+from Score sc,Student s,Course c
+where sc.sid = s.sid
+and sc.cid = c.cid) t
+where t.myrank <4
+```
+
+![sql50_25](./_static/sql50_25.png)
+
+
+
 + 查询每门课程被选修的学生数
 + 查询出只选修了一门课程的全部学生的学号和姓名
 + 查询男生、女生人数

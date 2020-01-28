@@ -1,0 +1,566 @@
+5. SQL面试50题
+==============
+
+5.1 表结构
+----------
+
+.. code:: sql
+
+    -- 创建数据库
+    create database school;
+    use school;
+
+.. code:: sql
+
+    -- 建表
+    -- 学生表：学生编号,学生姓名, 出生年月,学生性别
+    create table Student(sid varchar(10),sname nvarchar(10),sage datetime,ssex nvarchar(10));
+    insert into Student values('01' , N'赵雷' , '1990-01-01' , N'男');
+    insert into Student values('02' , N'钱电' , '1990-12-21' , N'男');
+    insert into Student values('03' , N'孙风' , '1990-05-20' , N'男');
+    insert into Student values('04' , N'李云' , '1990-08-06' , N'男');
+    insert into Student values('05' , N'周梅' , '1991-12-01' , N'女');
+    insert into Student values('06' , N'吴兰' , '1992-03-01' , N'女');
+    insert into Student values('07' , N'郑竹' , '1989-07-01' , N'女');
+    insert into Student values('08' , N'王菊' , '1990-01-20' , N'女');
+    -- 课程表：课程编号, 课程名称, 教师编号
+    create table Course(cid varchar(10),cname nvarchar(10),tid varchar(10));
+    insert into Course values('01' , N'语文' , '02');
+    insert into Course values('02' , N'数学' , '01');
+    insert into Course values('03' , N'英语' , '03');
+    -- 教师表：教师编号,教师姓名
+    create table Teacher(tid varchar(10),tname nvarchar(10));
+    insert into Teacher values('01' , N'张三');
+    insert into Teacher values('02' , N'李四');
+    insert into Teacher values('03' , N'王五');
+    -- 成绩表：学生编号,课程编号,分数
+    create table Score(sid varchar(10),cid varchar(10),score decimal(18,1));
+    insert into Score values('01' , '01' , 80);
+    insert into Score values('01' , '02' , 90);
+    insert into Score values('01' , '03' , 99);
+    insert into Score values('02' , '01' , 70);
+    insert into Score values('02' , '02' , 60);
+    insert into Score values('02' , '03' , 80);
+    insert into Score values('03' , '01' , 80);
+    insert into Score values('03' , '02' , 80);
+    insert into Score values('03' , '03' , 80);
+    insert into Score values('04' , '01' , 50);
+    insert into Score values('04' , '02' , 30);
+    insert into Score values('04' , '03' , 20);
+    insert into Score values('05' , '01' , 76);
+    insert into Score values('05' , '02' , 87);
+    insert into Score values('06' , '01' , 31);
+    insert into Score values('06' , '03' , 34);
+    insert into Score values('07' , '02' , 89);
+    insert into Score values('07' , '03' , 98);
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50.jpg
+   :alt: table\_scheme
+
+   table\_scheme
+.. code:: sql
+
+    -- 查看每个人的年龄，性别，三门课成绩
+    select
+    sid,sname,sage,ssex,[语文],[数学],[英语]
+    from
+    (
+    select a.sid,a.sname,a.sage,a.ssex,c.cname,b.score
+      from Student a
+      left join Score b 
+      on a.sid=b.sid
+      left join Course c
+      on b.cid = c.cid
+    ) source_table
+    pivot(
+      sum(score) for
+    cname in (
+      [语文],[数学],[英语]
+    )
+         ) t
+
+.. figure:: D:/ProjectHome/sql50/source/_static/all_info.png
+   :alt: all\_info
+
+   all\_info
+5.2 50题
+--------
+
+-  1.查询“01”课程比“02”课程成绩高的所有学生的学号
+
+.. code:: sql
+
+    select * from 
+    (select * from Score where Score.cid = '01') s1,
+    (select * from Score where Score.cid = '02') s2
+    where 
+    s1.sid = s2.sid and
+    s1.score > s2.score
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_1.png
+   :alt: sql50\_1
+
+   sql50\_1
+
+-  2.查询平均成绩大于60分的同学的学号和平均成绩
+
+.. code:: sql
+
+    SELECT sid,AVG( score )  as mean_score
+    FROM Score 
+    GROUP BY sid 
+    HAVING AVG( score ) > 60;
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_2.png
+   :alt: sql50\_2
+
+   sql50\_2
+
+-  3.查询所有同学的学号、姓名、选课数、总成绩
+
+.. code:: sql
+
+    SELECT a.sid,a.sname, 
+    count(b.cid) as '选课数', 
+    sum(b.score) as '总成绩'
+    FROM Student a
+    left join Score b
+    on a.sid = b.sid
+    group by a.sid,a.sname
+    order by a.sid
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_3.png
+   :alt: sql50\_3
+
+   sql50\_3
+
+-  4.查询姓“李”的老师的个数；
+
+.. code:: sql
+
+    SELECT 
+    count(1)
+    FROM Teacher
+    where tname like N'李%'  --建表时字段设置为了Unicode,因此查询也需要加上N
+
+-  5.查询没学过“张三”老师课的同学的学号、姓名；
+
+.. code:: sql
+
+    -- 子查询将张三老师课程的学生id找出来
+    SELECT 
+    sid, sname
+    FROM Student
+    where 
+    sid not in (
+      select s.sid
+      from Score s, Course c, Teacher t 
+      where s.cid = c.cid
+      and c.tid=t.tid 
+      and t.tname=N'张三')
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_5.png
+   :alt: sql50\_5
+
+   sql50\_5
+
+-  6.查询学过“张三”老师所教的课的同学的学号、姓名；
+
+.. code:: sql
+
+      select s.sid, st.sname
+      from Score s, Course c, Teacher t ,Student st
+      where s.cid = c.cid
+      and c.tid=t.tid 
+      and t.tname=N'张三'
+      and s.sid = st.sid
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_6.png
+   :alt: sql50\_6
+
+   sql50\_6
+
+-  7.查询学过编号“01”并且也学过编号“02”课程的同学的学号、姓名；
+
+.. code:: sql
+
+    select * from
+    Student where sid in 
+    (
+    select s1.sid from 
+    (select * from Score where Score.cid = '01') s1,
+    (select * from Score where Score.cid = '02') s2
+    where 
+    s1.sid = s2.sid)
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_7.png
+   :alt: sql50\_7
+
+   sql50\_7
+
+-  8.查询课程编号“01”的成绩比课程编号“02”课程低的所有同学的学号、姓名；
+
+.. code:: sql
+
+    -- 和第一题，第七题相似
+    select sid,sname from
+    Student where sid in 
+    (
+    select s1.sid from 
+    (select sid,score from Score where cid = '01') s1,
+    (select sid,score from Score where cid = '02') s2
+    where 
+    s1.sid = s2.sid and
+    s1.score < s2.score)
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_8.png
+   :alt: sql50\_8
+
+   sql50\_8
+
+-  9.查询所有课程成绩小于60分的同学的学号、姓名；
+
+.. code:: sql
+
+    SELECT t.sid, s.sname
+    FROM
+        (SELECT DISTINCT sid
+        FROM Score
+        GROUP BY sid
+        HAVING MAX(score) < 60) t
+    LEFT JOIN Student s
+    ON t.sid = s.sid
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_9.png
+   :alt: sql50\_9
+
+   sql50\_9
+
+-  10.查询没有学全所有课的同学的学号、姓名
+
+.. code:: sql
+
+    -- 利用第三题的选课数
+    SELECT a.sid,a.sname, 
+    count(b.cid) as '选课数'
+    FROM Student a
+    left join Score b
+    on a.sid = b.sid
+    group by a.sid,a.sname
+    having count(b.cid) <> (select count(distinct cid) from Course)
+    order by a.sid
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_10.png
+   :alt: sql50\_10
+
+   sql50\_10
+
+-  11.查询至少有一门课与学号为“01”的同学所学相同的同学的学号和姓名
+
+.. code:: sql
+
+    select distinct st.sid,st.sname from
+    Score s, Student st
+    where st.sid = s.sid
+    and s.cid in 
+    (select s.cid from
+    Score s, Student st
+    where st.sid = s.sid
+    and st.sid = '01')
+    and st.sid <> '01'
+    order by st.sid
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_11.png
+   :alt: sql50\_11
+
+   sql50\_11
+
+-  12.查询和"01"号的同学学习的课程完全相同的其他同学的学号和姓名
+
+.. code:: sql
+
+    -- 此题和11题类似，在11题基础上加上课程数量的限制即可
+    select st.sid,st.sname from
+    Score s, Student st
+    where st.sid = s.sid
+    group by st.sid, st.sname
+    having count(s.cid) = 
+    (select count(s.cid) from
+    Score s, Student st
+    where st.sid = s.sid
+    and st.sid = '01')
+    and st.sid <> '01'
+    order by st.sid
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_12.png
+   :alt: sql50\_12
+
+   sql50\_12
+
+-  13.把“Score”表中“张三”老师教的课的成绩都更改为此课程的平均成绩
+
+.. code:: sql
+
+    -- update题
+
+-  14.查询没学过"张三"老师讲授的任一门课程的学生姓名
+
+.. code:: sql
+
+    -- 和第六题一样
+    SELECT 
+    sid, sname
+    FROM Student
+    where 
+    sid not in (
+      select s.sid
+      from Score s, Course c, Teacher t 
+      where s.cid = c.cid
+      and c.tid=t.tid 
+      and t.tname=N'张三')
+
+-  15.查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
+
+.. code:: sql
+
+    SELECT 
+    s.sid, s.sname,AVG(sc.score) as mean_score
+    FROM Student s, Score sc
+    where 
+    s.sid = sc.sid
+    and sc.score < 60
+    group by s.sid, s.sname
+    having count(sc.cid) >1
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_15.png
+   :alt: sql50\_15
+
+   sql50\_15
+
+-  16.检索"01"课程分数小于60，按分数降序排列的学生信息
+
+.. code:: sql
+
+    SELECT 
+    s.*, sc.score
+    FROM Student s, Score sc
+    where 
+    s.sid = sc.sid
+    and sc.cid = '01'
+    and sc.score < 60
+    order by sc.score desc 
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_16.png
+   :alt: sql50\_16
+
+   sql50\_16
+
+-  17.按平均成绩从高到低显示所有学生的平均成绩
+
+.. code:: sql
+
+    SELECT 
+    s.sid,s.sname, AVG(sc.score) as mean_score
+    FROM Student s, Score sc
+    where 
+    s.sid = sc.sid
+    group by s.sid,s.sname
+    order by AVG(sc.score) desc
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_17.png
+   :alt: sql50\_17
+
+   sql50\_17
+
+-  18.查询各科成绩最高分、最低分和平均分：以如下形式显示：课程ID，课程name，最高分，最低分，平均分，及格率
+
+.. code:: sql
+
+    select 
+      s.cid, 
+      c.cname, 
+      max(s.score) as max_score,
+      min(s.score) as min_score,
+      AVG(s.score) as mean_score,
+      AVG (case when s.score >= 60 then 1.0 else 0.0 end ) as passrate 
+    from Score s, Course c
+    where s.cid = c.cid
+    group by s.cid,c.cname
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_18.png
+   :alt: sql50\_18
+
+   sql50\_18
+
+-  19.按各科平均成绩从低到高和及格率的百分数从高到低顺序
+
+.. code:: sql
+
+    -- 就是第十八题的排序
+    select 
+      s.cid, 
+      c.cname, 
+      AVG(s.score) as mean_score,
+      AVG (case when s.score >= 60 then 1.0 else 0.0 end ) as passrate 
+    from Score s, Course c
+    where s.cid = c.cid
+    group by s.cid,c.cname
+    order by AVG(s.score) asc, AVG (case when s.score > 60 then 1.0 else 0.0 end ) desc
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_19.png
+   :alt: sql50\_19
+
+   sql50\_19
+
+-  20.查询学生的总成绩并进行排名
+
+.. code:: sql
+
+    -- 使用rank()进行排名
+    select 
+      s.sid,
+      s.sname,
+      sum(sc.score) as total_score,
+      rank() over(order by sum(sc.score) desc) as score_rank
+    from Student s, Score sc
+    where s.sid = sc.sid
+    group by  s.sid,  s.sname
+    order by sum(sc.score) desc
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_20.png
+   :alt: sql50\_20
+
+   sql50\_20
+
+-  21.查询不同老师所教不同课程平均分从高到低显示
+
+.. code:: sql
+
+    select 
+      c.cname,
+      t.tname,
+      AVG(s.score) as mean_score
+    from Course c,Score s, Teacher t
+    where c.tid = t.tid
+    and c.cid = s.cid
+    group by c.cname,t.tname
+    order by AVG(s.score) desc
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_21.png
+   :alt: sql50\_21
+
+   sql50\_21
+
+-  22.查询所有课程的成绩第2名到第3名的学生信息及该课程成绩
+
+.. code:: sql
+
+    -- row_number() over(partition by 分组字段 order by 排序字段 排序方式) as 别名
+    select * from (
+    select 
+      sc.sid,
+      s.sname,
+      s.ssex,
+      s.sage,
+      c.cname,
+      sc.score,
+      ROW_NUMBER() over(partition BY sc.cid order by score desc) as myrank
+    from Score sc,Student s,Course c
+    where sc.sid = s.sid
+    and sc.cid = c.cid) t
+    where t.myrank in (2,3)
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_22.png
+   :alt: sql50\_22
+
+   sql50\_22
+
+-  23.统计各科成绩各分数段人数：课程编号,课程名称,[100-85],[85-70],[70-60],[0-60]及所占百分比
+
+.. code:: sql
+
+    -- 有点琐碎，不知道有没有简便方法
+    select 
+      c.cid,
+      c.cname,
+      SUM(case when sc.score >= 85 and sc.score <= 100 then 1.0 else 0.0 end ) as '[100-85]',
+      SUM(case when sc.score >= 85 and sc.score <= 100 then 1.0 else 0.0 end ) / count(sc.sid) as '[100-85]百分比',
+      SUM(case when sc.score >= 70 and sc.score <  85 then 1.0 else 0.0 end ) as '[85-70]',
+      SUM(case when sc.score >= 70 and sc.score <  85 then 1.0 else 0.0 end )/ count(sc.sid) as '[85-70]百分比',
+      SUM(case when sc.score >= 60 and sc.score <  70 then 1.0 else 0.0 end ) as '[70-60]',
+      SUM(case when sc.score >= 60 and sc.score <  70 then 1.0 else 0.0 end )/ count(sc.sid) as '[70-60]百分比',
+      SUM(case when sc.score >= 0 and sc.score  <  60 then 1.0 else 0.0 end ) as '[60-0]',
+      SUM(case when sc.score >= 0 and sc.score  <  60 then 1.0 else 0.0 end ) / count(sc.sid) as '[60-0]百分比'
+    from Score sc,Course c
+    where c.cid =sc.cid
+    group by c.cid,c.cname
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_23.png
+   :alt: sql50\_23
+
+   sql50\_23
+
+-  24.查询学生平均成绩及其名次
+
+.. code:: sql
+
+    --这题和第二十题是一样的
+    select 
+      s.sid,
+      s.sname,
+      AVG(sc.score) as mean_score,
+      rank() over(order by AVG(sc.score) desc) as score_rank
+    from Student s, Score sc
+    where s.sid = sc.sid
+    group by  s.sid,  s.sname
+    order by AVG(sc.score) desc
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_24.png
+   :alt: sql50\_24
+
+   sql50\_24
+
+-  25.查询各科成绩前三名的记录
+
+.. code:: sql
+
+    -- 和第二十二题一样
+    -- row_number() over(partition by 分组字段 order by 排序字段 排序方式) as 别名
+    select * from (
+    select 
+      sc.sid,
+      s.sname,
+      s.ssex,
+      s.sage,
+      c.cname,
+      sc.score,
+      ROW_NUMBER() over(partition BY sc.cid order by score desc) as myrank
+    from Score sc,Student s,Course c
+    where sc.sid = s.sid
+    and sc.cid = c.cid) t
+    where t.myrank <4
+
+.. figure:: D:/ProjectHome/sql50/source/_static/sql50_25.png
+   :alt: sql50\_25
+
+   sql50\_25
+
+-  查询每门课程被选修的学生数
+-  查询出只选修了一门课程的全部学生的学号和姓名
+-  查询男生、女生人数
+-  查询名字中含有"风"字的学生信息
+-  查询同名同性学生名单，并统计同名人数
+-  查询1990年出生的学生名单(注：Student表中Sage列的类型是datetime)
+-  查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列
+-  查询不及格的课程，并按课程号从大到小排列
+-  查询课程编号为"01"且课程成绩在60分以上的学生的学号和姓名；
+-  查询选修“张三”老师所授课程的学生中，成绩最高的学生姓名及其成绩
+-  查询每门功课成绩最好的前两名
+-  统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列
+-  检索至少选修两门课程的学生学号
+-  查询选修了全部课程的学生信息
+-  查询各学生的年龄
+-  查询本周过生日的学生
+-  查询下周过生日的学生
+-  查询本月过生日的学生
+-  查询下月过生日的学生

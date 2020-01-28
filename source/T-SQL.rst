@@ -2,7 +2,7 @@
    :format: html latex
 ..
 
-2 Transact-SQL
+2. Transact-SQL
 ==============
 
 `Transact-SQL <https://baike.baidu.com/item/Transact-SQL/2756623?fr=aladdin>`__\ （又称
