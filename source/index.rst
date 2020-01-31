@@ -10,6 +10,7 @@ Welcome to sql50's documentation!
    :maxdepth: 2
 
    sqlserver_ch1
+   SQL
    T-SQL
    sql50
 

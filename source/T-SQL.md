@@ -1,10 +1,10 @@
-# 2 Transact-SQL
+# 3. Transact-SQL
 
 [Transact-SQL](https://baike.baidu.com/item/Transact-SQL/2756623?fr=aladdin)（又称 T-SQL），是在 Microsoft SQL Server 和 Sybase SQL Server 上的 ANSI SQL 实现，与 Oracle 的 PL/SQL 性质相近（不只是实现 ANSI SQL，也为自身数据库系统的特性提供实现支持），在 Microsoft SQL Server 和 Sybase Adaptive Server 中仍然被使用为核心的查询语言。
 
 [官方文档](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189312(v=sql.105))
 
-## 2.1 Transact-SQL 元素
+## 3.1 Transact-SQL 元素
 
 | Transact-SQL 元素                                            | 说明                                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- |
@@ -19,11 +19,11 @@
 
 
 
-## 2.2 Transact-SQL标识符
+## 3.2 Transact-SQL标识符
 
 Microsoft SQL Server 中的所有内容都可以有标识符。服务器、数据库和数据库对象（例如表、视图、列、索引、触发器、过程、约束及规则等）都可以有标识符。大多数对象要求有标识符，但对有些对象（例如约束），标识符是可选的。
 
-### 2.2.1 标识符的种类
+### 3.2.1 标识符的种类
 
 有两类标识符：
 
@@ -57,7 +57,7 @@ Microsoft SQL Server 中的所有内容都可以有标识符。服务器、数�
 
 
 
-### 2.2.2 常规标识符规则
+### 3.2.2 常规标识符规则
 
 常规标识符格式规则取决于数据库兼容级别。该级别可以使用 [ALTER DATABASE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb510680(v%3dsql.105)) 设置。当兼容级别为 **100** 时，下列规则适用：
 
@@ -87,7 +87,7 @@ Microsoft SQL Server 中的所有内容都可以有标识符。服务器、数�
 
 
 
-## 2.3 Transact-SQL 数据类型
+## 3.3 Transact-SQL 数据类型
 
 包含数据的对象都有一个相关联的数据类型，它定义对象所能包含的数据种类，例如字符、整数或二进制。下列对象具有数据类型：
 
@@ -106,7 +106,7 @@ Microsoft SQL Server 中的所有内容都可以有标识符。服务器、数�
 
 
 
-### 2.3.1  二进制数据
+### 3.3.1  二进制数据
 
 [binary 和 varbinary](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188362(v%3dsql.105)) 数据类型存储位串。尽管字符数据是根据 SQL Server 代码页进行解释的，但 binary 和 varbinary 数据仅是位流。
 
@@ -123,7 +123,7 @@ Microsoft SQL Server 中的所有内容都可以有标识符。服务器、数�
 
 
 
-### 2.3.2 字符串
+### 3.3.2 字符串
 
 [char 和 varchar 数据类型](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175055(v=sql.105))存储由以下字符组成的数据：
 
@@ -146,7 +146,7 @@ varchar 数据可以有两种形式。varchar 数据的最大字符长度可以�
 
 
 
-### 2.3.3 Unicode 字符串
+### 3.3.3 Unicode 字符串
 
 Unicode 规格为全球商业领域中广泛使用的大部分字符定义了一个单一编码方案。所有的计算机都用单一的 Unicode 规格将 Unicode 数据中的位模式一致地转换成字符。这保证了同一个位模式在所有的计算机上总是转换成同一个字符。数据可以随意地从一个数据库或计算机传送到另一个数据库或计算机，而不用担心接收系统是否会错误地转换位模式。
 
@@ -182,7 +182,7 @@ Unicode 规格通过采用两个字节编码每个字符使这个问题迎刃而
 
 
 
-### 2.3.4 Text和Image
+### 3.3.4 Text和Image
 
 Microsoft SQL Server 将超过 8,000 个字节的字符串和大于 8,000 个字节的二进制数据分别存储为名为 text 和 image 的特殊数据类型。超过 4,000 个字符的 Unicode 字符串存储为 ntext 数据类型。
 
@@ -190,7 +190,7 @@ Microsoft SQL Server 将超过 8,000 个字节的字符串和大于 8,000 个字
 
 
 
-### 2.3.5  整数
+### 3.3.5  整数
 
 | [数据类型](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187745(v%3dsql.105)) | 范围                                                         | 存储   |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :----- |
@@ -205,7 +205,7 @@ Microsoft SQL Server 将超过 8,000 个字节的字符串和大于 8,000 个字
 
 
 
-### 2.3.6 decimal、numeric、float和real
+### 3.3.6 decimal、numeric、float和real
 
 [精度](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190476%28v%3dsql.105%29)是数字中的数字个数。小数位数是数中小数点右边的数字个数。例如，数 123.45 的精度是 5，小数位数是 2。
 
@@ -268,7 +268,7 @@ IEEE 754 规范提供四种舍入模式：舍入到最近、向上舍入、向�
 
 
 
-### 2.3.7 货币数据
+### 3.3.7 货币数据
 
 Microsoft SQL Server 使用以下两种数据类型存储货币数据或货币值：money 和 smallmoney。这些数据类型可以使用下列任意一种货币符号。
 
@@ -287,7 +287,7 @@ money 和 smallmoney 数据类型精确到它们所代表的货币单位的万�
 
 
 
-### 2.3.8 日期和时间数据
+### 3.3.8 日期和时间数据
 
 下表列出了 Transact-SQL 的日期和时间数据类型。 
 
@@ -304,7 +304,7 @@ money 和 smallmoney 数据类型精确到它们所代表的货币单位的万�
 
 
 
-### 2.3.9 数据类型转换
+### 3.3.9 数据类型转换
 
 可以按以下方案转换数据类型：
 
@@ -323,7 +323,7 @@ money 和 smallmoney 数据类型精确到它们所代表的货币单位的万�
 
 
 
-### 2.3.10 uniqueidentifier 
+### 3.3.10 uniqueidentifier 
 
 uniqueidentifier 数据类型可存储 16 字节的二进制值，其作用与全局唯一标识符 (GUID) 一样。GUID 是唯一的二进制数；世界上的任何两台计算机都不会生成重复的 GUID 值。GUID 主要用于在拥有多个节点、多台计算机的网络中，分配必须具有唯一性的标识符。
 
@@ -350,7 +350,7 @@ uniqueidentifier 数据类型具有下列缺点：
 
 
 
-### 2.3.11 XML数据
+### 3.3.11 XML数据
 
 可以创建 xml 数据类型的变量和列。xml 数据类型有自己的 [XML 数据类型方法](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190798(v%3dsql.105))。
 
@@ -370,7 +370,7 @@ uniqueidentifier 数据类型具有下列缺点：
 
 
 
-### 2.3.12 timestamp和rowversion
+### 3.3.12 timestamp和rowversion
 
 每个数据库都有一个计数器，当对数据库中包含 rowversion 列的表执行插入或更新操作时，该计数器值就会增加。此计数器是数据库行版本。这可以跟踪数据库内的相对时间，而不是时钟相关联的实际时间。一个表只能有一个 rowversion 列。
 
@@ -380,7 +380,7 @@ timestamp 的数据类型为 rowversion 数据类型的同义词，并具有数�
 
 
 
-### 2.3.13 cursor
+### 3.3.13 cursor
 
 [cursor](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190498(v=sql.105))是变量或存储过程 OUTPUT 参数的一种数据类型，这些参数包含对游标的引用。使用 cursor数据类型创建的变量可以为空。
 
@@ -394,13 +394,13 @@ timestamp 的数据类型为 rowversion 数据类型的同义词，并具有数�
 
 
 
-### 2.3.14 table
+### 3.3.14 table
 
 [table](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175010(v=sql.105)) 是一种特殊的数据类型，用于存储结果集以进行后续处理。主要用于临时存储一组作为表值函数的结果集返回的行。可将函数和变量声明为 table 类型。table 变量可用于函数、存储过程和批处理中。
 
 
 
-### 2.3.15 sql_variant
+### 3.3.15 sql_variant
 
 [sql_variant](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173829(v=sql.105))用于存储 SQL Server 支持的各种数据类型的值。sql_variant 可以用在列、参数、变量和用户定义函数的返回值中。sql_variant 使这些数据库对象能够支持其他数据类型的值。
 
@@ -408,7 +408,7 @@ timestamp 的数据类型为 rowversion 数据类型的同义词，并具有数�
 
 
 
-### 2.3.16 Transact-SQL 常量
+### 3.3.16 Transact-SQL 常量
 [常量](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190955(v=sql.105))是表示特定数据值的符号。常量的格式取决于它所表示的值的数据类型。常量还称为字面量。
 
 | 使用的常量            | 示例                                                         |
@@ -426,7 +426,7 @@ timestamp 的数据类型为 rowversion 数据类型的同义词，并具有数�
 
 
 
-## 2.4 Transact-SQL 函数
+## 3.4 Transact-SQL 函数
 
 SQL Server 提供了可用于执行特定操作的[内置函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190642(v=sql.105))。[具体内置函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174318%28v%3dsql.105%29)
 
@@ -449,7 +449,7 @@ SQL Server 提供了可用于执行特定操作的[内置函数](https://docs.mi
 
 
 
-## 2.5 Transact-SQL 表达式
+## 3.5 Transact-SQL 表达式
 
 [表达式](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190718(v=sql.105))是标识符、值和运算符的组合，SQL Server 可以对其求值以获取结果。访问或更改数据时，可在多个不同的位置使用数据。例如，可以将表达式用作要在查询中检索的数据的一部分，也可以用作查找满足一组条件的数据时的搜索条件。
 
@@ -466,7 +466,7 @@ SQL Server 提供了可用于执行特定操作的[内置函数](https://docs.mi
 
 
 
-## 2.6 Transact-SQL 运算符
+## 3.6 Transact-SQL 运算符
 
 | 算术运算符                                                   | 含义                                      |
 | ------------------------------------------------------------ | ----------------------------------------- |
@@ -521,7 +521,7 @@ SQL Server 提供了可用于执行特定操作的[内置函数](https://docs.mi
 
 
 
-## 2.7 Transact-SQL 注释
+## 3.7 Transact-SQL 注释
 
 [注释](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188621(v=sql.105))是程序代码中不执行的文本字符串（也称为备注）。注释可用于对代码进行说明或暂时禁用正在进行诊断的部分 Transact-SQL 语句和批。使用注释对代码进行说明，便于将来对程序代码进行维护。
 
@@ -532,7 +532,7 @@ SQL Server 支持两种类型的注释字符：
 
 
 
-## 2.8 Transact-SQL 保留关键字
+## 3.8 Transact-SQL 保留关键字
 
 Microsoft SQL Server 将[保留关键字](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189822(v=sql.105))用于定义、操作和访问数据库。保留关键字是 SQL Server 使用的 Transact-SQL 语言语法的一部分，用于分析和理解 Transact-SQL 语句和批处理。尽管在 Transact-SQL 脚本中使用 SQL Server 保留关键字作为标识符和对象名在语法上是可行的，但规定只能使用分隔标识符。
 
@@ -603,7 +603,7 @@ Microsoft SQL Server 将[保留关键字](https://docs.microsoft.com/zh-cn/previ
 
 
 
-## 2.9 Transact-SQL 语法约定
+## 3.9 Transact-SQL 语法约定
 
 | 约定          | 使用场景                                                     |
 | :------------ | :----------------------------------------------------------- |
