@@ -12,8 +12,8 @@ Welcome to sql50's documentation!
    sqlserver_ch1
    SQL
    T-SQL
+   Select
    sql50
-
    
 
 Indices and tables
