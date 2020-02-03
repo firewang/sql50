@@ -446,4 +446,207 @@ ORDER BY 子句中引用的列名必须明确地对应于 SELECT 列表中的列
   COLLATE Traditional_Spanish_ci_ai ASC;
   ```
 
-  
+
+
+
+## 4.8 子查询 subquery
+
+子查询是一个嵌套在 SELECT、INSERT、UPDATE 或 DELETE 语句或其他子查询中的查询。任何允许使用表达式的地方都可以使用子查询。
+
+子查询也称为内部查询或内部选择，而包含子查询的语句也称为外部查询或外部选择。
+
+
+
+有三种基本的子查询。它们是：
+
+- 在通过 IN 或由 ANY 或 ALL 修改的比较运算符引入的列表上操作。 WHERE expression [NOT] IN **(subquery)** 
+- 通过未修改的比较运算符引入且必须返回单个值。 WHERE expression comparison_operator [ANY | ALL] **(subquery)**
+- 通过 EXISTS 引入的存在测试。 WHERE [NOT] EXISTS **(subquery)**
+
+
+
+许多包含子查询的 Transact-SQL 语句都可以改用联接表示。其他问题只能通过子查询提出。
+
+在 Transact-SQL 中，包含子查询的语句和语义上等效的不包含子查询的语句（即联接的方式）在性能上通常没有差别。但是，在一些必须检查存在性的情况中，使用联接会产生更好的性能。否则，为确保消除重复值，必须为外部查询的每个结果都处理嵌套查询。所以在这些情况下，联接方式会产生更好的效果。
+
+子查询的 SELECT 查询总是使用**圆括号**括起来。它不能包含 COMPUTE 或 FOR BROWSE 子句，如果同时指定了 TOP 子句，则只能包含 ORDER BY 子句。
+
+
+
+子查询受下列**限制**的制约：
+
+- 通过比较运算符引入的子查询选择列表只能包括一个表达式或列名称（对 SELECT * 执行的 EXISTS 或对列表执行的 IN 子查询除外）。
+- 如果外部查询的 WHERE 子句包括列名称，它必须与子查询选择列表中的列是联接兼容的。
+- ntext、text 和 image 数据类型不能用在子查询的选择列表中。
+- 由于**必须返回单个值**，所以由未修改的比较运算符（即后面未跟关键字 ANY 或 ALL 的运算符）引入的子查询不能包含 GROUP BY 和 HAVING 子句。
+- 包含 GROUP BY 的子查询不能使用 DISTINCT 关键字。
+- 不能指定 COMPUTE 和 INTO 子句。
+- 只有指定了 TOP 时才能指定 ORDER BY。
+- 不能更新使用子查询创建的视图。
+- 按照惯例，由 EXISTS 引入的子查询的选择列表有一个星号 (*)，而不是单个列名。因为由 EXISTS 引入的子查询创建了存在测试并返回 TRUE 或 FALSE 而非数据，所以其规则与标准选择列表的规则相同。
+
+
+
+## 4.9 联接 join
+
+通过[联接](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191517(v=sql.105))，可以从两个或多个表中根据各个表之间的逻辑关系来检索数据。
+
+**联接条件**可通过以下方式定义两个表在查询中的关联方式：
+
+- 指定每个表中要用于联接的列。典型的联接条件在一个表中指定一个外键，而在另一个表中指定与其关联的键。
+- 指定用于比较各列的值的逻辑运算符（例如 = 或 <>）。
+
+可以在 FROM 或 WHERE 子句中指定**内部联接**；而只能在 FROM 子句中指定**外部联接**。联接条件与 WHERE 和 HAVING 搜索条件相结合，用于控制从 FROM 子句所引用的基表中选定的行。
+
+比如下列联接因为是内部联接，因此也可以改写为在WHERE条件中指定联接。
+
+```sql
+-- FROM中指定联接（首选）
+SELECT pv.ProductID, v.BusinessEntityID, v.Name
+FROM Purchasing.ProductVendor AS pv 
+JOIN Purchasing.Vendor AS v
+    ON (pv.BusinessEntityID = v.BusinessEntityID)
+WHERE StandardPrice > 10
+    AND Name LIKE N'F%';
+-- WHERE中指定联接
+SELECT pv.ProductID, v.BusinessEntityID, v.Name
+FROM Purchasing.ProductVendor AS pv, Purchasing.Vendor AS v
+WHERE pv.VendorID = v.VendorID
+    AND StandardPrice > 10
+    AND Name LIKE N'F%';
+```
+
+
+
+在 FROM 子句中指定联接条件有助于将这些联接条件与 WHERE 子句中可能指定的其他任何搜索条件分开，建议用这种方法来指定联接。简化的 ISO FROM 子句联接语法如下：
+
+```sql
+FROM first_table  
+join_type  
+second_table 
+[ON (join_condition)]
+```
+
+**join_type** 指定要执行的联接类型
+
+- 内部联接（典型的联接运算，使用类似于 = 或 <> 的比较运算符）。内部联接包括同等联接和自然联接。
+
+- 外部联接。外部联接可以是左向外部联接、右向外部联接或完整外部联接。
+
+  在 FROM 子句中可以用下列某一组关键字来指定外部联接：
+
+  - LEFT JOIN 或 LEFT OUTER JOIN。
+
+    左向外部联接的结果集包括 LEFT OUTER 子句中指定的左表的所有行，而不仅仅是联接列所匹配的行。如果左表的某一行在右表中没有匹配行，则在关联的结果集行中，来自右表的所有选择列表列均为空值。
+
+  - RIGHT JOIN 或 RIGHT OUTER JOIN
+
+    右向外部联接是左向外部联接的反向联接。将返回右表的所有行。如果右表的某一行在左表中没有匹配行，则将为左表返回空值。
+
+  - FULL JOIN 或 FULL OUTER JOIN
+
+    完整外部联接将返回左表和右表中的所有行。当某一行在另一个表中没有匹配行时，另一个表的选择列表列将包含空值。如果表之间有匹配行，则整个结果集行包含基表的数据值。
+
+- 交叉联接
+
+  交叉联接将返回左表中的所有行。左表中的每一行均与右表中的所有行组合。交叉联接也称作笛卡尔积。
+
+**join_condition** 定义用于对每一对联接行进行求值的谓词（比较运算符或关系运算符）。
+
+当 SQL Server 处理联接时，查询引擎会从**多种可行的方法中选择最有效的方法**来处理联接。由于各种联接的实际执行过程会采用多种不同的优化，因此无法可靠地预测。
+
+
+
+## 4.10 UNION运算符
+
+[UNION 运算符](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191141(v=sql.105))可以将两个或多个 SELECT 语句的结果组合成一个结果集。
+
+UNION 的结果集列名与 UNION 运算符中第一个 SELECT 语句的结果集中的列名相同。另一个 SELECT 语句的结果集列名将被忽略。
+
+默认情况下，UNION 运算符将从结果集中删除重复的行。如果使用 ALL （即UNION ALL）关键字，那么结果中将包含所有行而不删除重复的行。
+
+
+
+使用 UNION 运算符时需遵循下列准则：
+
+- 在用 UNION 运算符组合的语句中，所有选择列表中的表达式（如列名称、算术表达式、聚合函数等）数目必须相同。
+
+- 用 UNION 组合的结果集中的对应列或各个查询中所使用的任何部分列都必须具有相同的数据类型，并且可以在两种数据类型之间进行隐式数据转换，或者可以提供显式转换。例如，**datetime** 数据类型的列和 **binary** 数据类型的列之间的 UNION 运算符将不执行运算，直到进行了显式转换。但是，**money** 数据类型的列和 **int** 数据类型的列之间的 UNION 运算符将执行运算，因为它们可以进行隐式转换。
+
+- 用 UNION 运算符组合的各语句中对应结果集列的顺序必须相同，因为 UNION 运算符按照各个查询中给定的顺序一对一地比较各列。
+
+- 表中通过 UNION 运算所得到的列名称是从 UNION 语句中的第一个单独查询得到的。若要用新名称引用结果集中的某列（例如在 ORDER BY 子句中），必须按第一个 SELECT 语句中的方式引用该列
+
+  ```sql
+  SELECT city AS Cities FROM stores_west
+  UNION 
+  SELECT city FROM stores_east
+  ORDER BY city
+  ```
+
+
+
+## 4.11 EXCEPT和INTERSECT半联接
+
+使用 [EXCEPT 和 INTERSECT 运算符](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191255(v=sql.105))可以比较两个或更多 SELECT 语句的结果并返回**非重复值**。
+
++ EXCEPT 运算符返回由 EXCEPT 运算符左侧的查询返回、而又不包含在右侧查询所返回的值中的所有非重复值。（左边结果与 左右两边结果的交集的差集 A-A∩B）
+
++ INTERSECT 返回由 INTERSECT 运算符左侧和右侧的查询都返回的所有非重复值。（两个查询结果的并集然后去重后的结果，A∪B）
+
+使用 EXCEPT 或 INTERSECT 比较的结果集必须具有相同的结构。它们的列数必须相同，并且相应的结果集列的数据类型必须兼容。
+
+**INTERSECT 运算符优先于 EXCEPT**。
+
+
+
+## 4.12 公用表表达式 WITH
+
+[公用表表达式 (CTE)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190766(v=sql.105)) 可以认为是在单个 SELECT、INSERT、UPDATE、DELETE 或 CREATE VIEW 语句的执行范围内定义的**临时结果集**。CTE 与派生表类似，具体表现在**不存储为对象**，并且**只在查询期间有效**。与派生表的不同之处在于，CTE 可自引用，还**可在同一查询中引用多次**。
+
+CTE 可用于：
+
+- 创建递归查询。
+- 在不需要常规使用视图时替换视图，也就是说，不必将定义存储在元数据中。
+- 启用按从标量嵌套 select 语句派生的列进行分组，或者按不确定性函数或有外部访问的函数进行分组。
+- 在同一语句中多次引用生成的表。
+
+使用 CTE 可以获得提高可读性和轻松维护复杂查询的优点。查询可以分为单独块、简单块、逻辑生成块。之后，这些简单块可用于生成更复杂的临时 CTE，直到生成最终结果集。
+
+可以在用户定义的例程（如函数、存储过程、触发器或视图）中定义 CTE。
+
+
+
+
+CTE 由表示 CTE 的表达式名称、可选列列表和定义 CTE 的查询组成。定义 CTE 后，可以在 SELECT、INSERT、UPDATE 或 DELETE 语句中对其进行引用，就像引用表或视图一样。CTE 也可用于 CREATE VIEW 语句，作为定义 SELECT 语句的一部分。
+
+**CTE 的基本语法结构**如下：
+
+```sql
+WITH expression_name [ ( column_name [,...n] ) ]
+AS
+( CTE_query_definition )
+-- 运行 CTE 的语句
+SELECT <column_list>
+FROM expression_name;
+```
+
+```sql
+-- 定义 CTE 查询别名和列名称
+WITH Sales_CTE (SalesPersonID, SalesOrderID, SalesYear)
+AS
+-- 定义CTE查询的结果集
+(
+    SELECT SalesPersonID, SalesOrderID, YEAR(OrderDate) AS SalesYear
+    FROM Sales.SalesOrderHeader
+    WHERE SalesPersonID IS NOT NULL
+)
+-- 使用CTE查询的结果进行进一步的查询
+SELECT SalesPersonID, COUNT(SalesOrderID) AS TotalSales, SalesYear
+FROM Sales_CTE
+GROUP BY SalesYear, SalesPersonID
+ORDER BY SalesPersonID, SalesYear;
+```
+
+
+
