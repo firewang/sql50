@@ -449,6 +449,291 @@ SQL Server 提供了可用于执行特定操作的[内置函数](https://docs.mi
 
 
 
+### 3.4.1 [系统函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187786%28v%3dsql.105%29)
+
+```sql
+-- 返回工作站标识号,是连接到 SQL Server的客户端计算机上的应用程序的进程 ID (PID)
+SELECT HOST_ID();
+-- 返回工作站名
+SELECT HOST_NAME();
+-- 创建 uniqueidentifier 类型的唯一值
+SELECT NEWID();  
+-- 确定表达式是否为有效的数值类型;ISNUMERIC ( expression )
+SELECT distinct 
+	ISNUMERIC(sid),ISNUMERIC(ssex)
+from Student 
+-- 使用指定的替换值替换 NULL。
+-- ISNULL ( check_expression , replacement_value )
+```
+
+![system_function](./_static/system_function.png)
+
+
+
+#### 3.4.1.1 CAST 和 CONVERT
+
+CAST 和 CONVERT函数是将一种数据类型的表达式转换为另一种数据类型的表达式。
+
+```sql
+-- CAST()语法:
+CAST ( expression AS data_type [ ( length ) ] )
+-- CONVERT()语法:
+CONVERT ( data_type [ ( length ) ] , expression [ , style ] )
+```
+
+- expression
+  任何有效的[表达式](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190286(v%3dsql.105))。
+- data_type
+  目标数据类型。这包括 xml、bigint 和 sql_variant。不能使用别名数据类型。
+- length
+  指定目标数据类型长度的可选整数。默认值为 30。
+- style
+  指定 CONVERT 函数如何转换 expression 的整数表达式。如果样式为 NULL，则返回 NULL。该范围是由 data_type 确定的。有关详细信息，请参阅“备注”部分。
+
+
+
+### 3.4.2 安全函数
+
+对管理安全性有用的函数
+
+```sql
+-- 当前用户的名称, 两者等价
+SELECT CURRENT_USER;
+SELECT USER_NAME();
+-- 数据库指定用户的标识号， 用户名缺省则表示当前用户
+SELECT USER_ID ( [ 'user' ] );
+SELECT USER_ID();
+-- 数据库指定标识号的用户名
+SELECT USER_NAME([ id ] );
+SELECT USER_NAME();
+-- 当前数据库中当前上下文的用户名
+SELECT SESSION_USER;
+-- 用户的登录标识号 SUSER_ID ( [ 'login' ] ) login为登录名
+SELECT SUSER_ID('sa');
+SELECT SUSER_ID(USER_NAME()); 
+-- 根据用户登录标识号返回用户的登录标识名SUSER_NAME ( [ server_user_id ] )
+SELECT SUSER_NAME(1);
+-- 指定登录名的安全标识号 (SID)
+SELECT SUSER_SID('sa');
+-- 与安全标识号 (SID) 关联的登录名
+SELECT SUSER_SNAME(0x01);
+```
+
+
+
+![security_functions](./_static/security_functions.png)
+
+
+
+```sql
+-- 判断当前账户是否可以访问指定的数据库
+SELECT HAS_DBACCESS ('database_name');
+-- 判断当前用户是否为指定Microsoft Windows组或SQL Server数据库角色的成员
+SELECT IS_MEMBER ( { 'group' | 'role' } )
+```
+
+
+
+### 3.4.3 元数据函数
+
+返回有关数据库和数据库对象的信息
+
+```sql
+-- 与架构 ID 关联的架构名称 SCHEMA_NAME ([ schema_id ])
+SELECT SCHEMA_NAME();
+-- 与架构名称关联的架构ID SCHEMA_ID ([ schema_name ])
+SELECT SCHEMA_ID();
+-- 数据库标识 (ID)号, DB_ID ( [ 'database_name' ] ) 
+SELECT DB_ID();
+-- 数据库名称 DB_NAME ( [ database_id ] )
+SELECT DB_NAME();
+-- 指定表中指定列的定义长度（以字节为单位）
+COL_LENGTH ( 'table' , 'column' ) 
+```
+
+![meta_functions](./_static/meta_functions.png)
+
+
+
+### 3.4.4 聚合函数
+
+[聚合函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173454%28v%3dsql.105%29)对一组值执行计算，并返回单个值。除了 COUNT 以外，聚合函数都会**忽略空值**。聚合函数经常与 SELECT 语句的 GROUP BY 子句一起使用。
+
+[OVER 子句](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461(v%3dsql.105))可以跟在除 CHECKSUM 以外的所有聚合函数的后面。
+
+```sql
+-- AVG ( [ ALL | DISTINCT ] expression ) 平均值
+-- MIN ( [ ALL | DISTINCT ] expression ) 最小值
+-- MAX ( [ ALL | DISTINCT ] expression ) 最大值
+-- SUM ( [ ALL | DISTINCT ] expression ) 和
+-- VAR ( [ ALL | DISTINCT ] expression ) 方差
+-- VARP ( [ ALL | DISTINCT ] expression ) 总体方差
+-- STDEV ( [ ALL | DISTINCT ] expression ) 标准差
+-- STDEVP ( [ ALL | DISTINCT ] expression ) 总体标准差
+-- COUNT ( { [ [ ALL | DISTINCT ] expression ] | * } ) 项数
+-- COUNT_BIG ( { [ ALL | DISTINCT ] expression } | * ) 项数
+```
+
+
+
+#### 3.4.4.1 GROUPING()
+
+指示是否聚合 GROUP BY 列表中的指定列表达式。在结果集中，如果 [GROUPING](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178544%28v%3dsql.105%29) 返回 1 则指示聚合；返回 0 则指示不聚合。如果指定了 GROUP BY，则 GROUPING 只能用在 SELECT <select> 列表、HAVING 和 ORDER BY 子句中。
+
+```sql
+-- 语法
+GROUPING ( <column_expression> )
+```
+
+
+
+#### 3.4.4.2 GROUPING_ID()
+
+计算分组级别的函数。仅当指定了 GROUP BY 时，[GROUPING_ID](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb510624%28v%3dsql.105%29) 才能在 SELECT <select> 列表、HAVING 或 ORDER BY 子句中使用。
+
+```sql
+-- 语法
+GROUPING_ID ( <column_expression>[ ,...n ] )
+```
+
+
+
+#### 3.4.4.3 OVER子句
+
+[OVER 子句](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461%28v%3dsql.105%29)确定在应用关联的开窗函数之前，行集的分区和排序。
+
+开窗函数是在 ISO SQL 标准中定义的。SQL Server 提供排名开窗函数和聚合开窗函数。窗口是用户指定的一组行。开窗函数计算从窗口派生的结果集中各行的值。
+
+可以在单个查询中将多个排名或聚合开窗函数与单个 FROM 子句一起使用。
+
+```sql
+-- 语法
+-- 排名函数
+Ranking Window Functions 
+< OVER_CLAUSE > :: =
+    OVER ( [ PARTITION BY value_expression , ... [ n ] ]
+           <ORDER BY_Clause> )
+-- 聚合函数
+Aggregate Window Functions 
+< OVER_CLAUSE > :: = 
+    OVER ( [ PARTITION BY value_expression , ... [ n ] ] )
+```
+
+- PARTITION BY
+  将结果集分为多个分区。开窗函数分别应用于每个分区，并为每个分区重新启动计算。
+- value_expression
+  指定对相应 FROM 子句生成的行集进行分区所依据的列。value_expression 只能引用通过 FROM 子句可用的列。value_expression 不能引用选择列表中的表达式或别名。value_expression 可以是列表达式、标量子查询、标量函数或用户定义的变量。
+- <ORDER BY 子句>
+  指定应用排名开窗函数的顺序。
+
+
+
+### 3.4.5 排名函数
+
+[排名函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189798%28v%3dsql.105%29)为分区中的每一行返回一个排名值。根据所用函数的不同，某些行可能与其他行接收到相同的值。排名函数具有不确定性。
+
+```sql
+-- 排名可能间断（同值同排名）
+RANK ( ) OVER ( [ < partition_by_clause > ] < order_by_clause > )
+-- 排名中没有任何间断 （同值同排名）
+DENSE_RANK ( )  OVER ( [ <partition_by_clause> ] < order_by_clause > )
+-- 将有序分区中的行分发到指定数目(integer_expression)的组中。
+NTILE (integer_expression) OVER ( [ <partition_by_clause> ] < order_by_clause > )
+-- 结果集分区内行的序列号，每个分区的第一行从 1 开始
+ROW_NUMBER ( )  OVER ( [ <partition_by_clause> ] <order_by_clause> )
+```
+
+```sql
+SELECT p.FirstName, p.LastName
+    ,ROW_NUMBER() OVER (ORDER BY a.PostalCode) AS 'Row Number'
+    ,RANK() OVER (ORDER BY a.PostalCode) AS 'Rank'
+    ,DENSE_RANK() OVER (ORDER BY a.PostalCode) AS 'Dense Rank'
+    ,NTILE(4) OVER (ORDER BY a.PostalCode) AS 'Quartile'
+    ,s.SalesYTD, a.PostalCode
+FROM Sales.SalesPerson s 
+    INNER JOIN Person.Person p 
+        ON s.BusinessEntityID = p.BusinessEntityID
+    INNER JOIN Person.Address a 
+        ON a.AddressID = p.BusinessEntityID
+WHERE TerritoryID IS NOT NULL 
+    AND SalesYTD <> 0;
+```
+
+![rank_functions](./_static/rank_functions.png)
+
+
+
+### 3.4.6 数学函数
+
+算术函数（例如 ABS、CEILING、DEGREES、FLOOR、POWER、RADIANS 和 SIGN）返回与输入值具有相同数据类型的值。三角函数和其他函数（包括 EXP、LOG、LOG10、SQUARE 和 SQRT）将输入值转换为 **float** 并返回 **float** 值。
+
+除 RAND 以外的所有[数学函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177516(v=sql.105))都为确定性函数。这意味着在每次使用特定的输入值集调用这些函数时，它们都将返回相同的结果。仅当指定种子参数时 RAND 才是确定性函数。
+
+- [ABS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189800(v=sql.105))
+- [ACOS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178627(v=sql.105))
+- [ASIN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181581(v=sql.105))
+- [ATAN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181746(v=sql.105))
+- [ATN2](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173854(v=sql.105))
+- [CEILING](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189818(v=sql.105))
+- [COS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188919(v=sql.105))
+- [COT](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188921(v=sql.105))
+- [DEGREES](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178566(v=sql.105))
+- [EXP](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms179857(v=sql.105))
+- [FLOOR](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178531(v=sql.105))
+- [LOG](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190319(v=sql.105))
+- [LOG10](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175121(v=sql.105))
+- [PI](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189512(v=sql.105))
+- [POWER](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174276(v=sql.105))
+- [RADIANS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189742(v=sql.105))
+- [RAND](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177610(v=sql.105))
+- [ROUND](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175003(v=sql.105))
+- [SIGN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188420(v=sql.105))
+- [SIN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188377(v=sql.105))
+- [SQRT](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms176108(v=sql.105))
+- [SQUARE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173569(v=sql.105))
+- [TAN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190338(v=sql.105))
+
+
+
+### 3.4.7 字符串函数
+
+所有内置字符串函数都是具有确定性的函数。[字符串函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181984(v=sql.105))对字符串输入值执行操作，并返回字符串或数值。
+
+- [ASCII (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177545(v=sql.105))
+- [CHAR (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187323(v=sql.105))
+- [CHARINDEX (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186323(v=sql.105))
+- [DIFFERENCE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188753(v=sql.105))
+- [LEFT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177601(v=sql.105))
+- [LEN (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190329(v=sql.105))
+- [LOWER (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174400(v=sql.105))
+- [LTRIM (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177827(v=sql.105))
+- [NCHAR (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms182673(v=sql.105))
+- [PATINDEX (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188395(v=sql.105))
+- [QUOTENAME (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms176114(v=sql.105))
+- [REPLACE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186862(v=sql.105))
+- [REPLICATE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174383(v=sql.105))
+- [REVERSE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180040(v=sql.105))
+- [REVERT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178632(v=sql.105))
+- [RIGHT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177532(v=sql.105))
+- [RTRIM (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178660(v=sql.105))
+- [SOUNDEX (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187384(v=sql.105))
+- [SPACE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187950(v=sql.105))
+- [STR (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189527(v=sql.105))
+- [STUFF (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188043(v=sql.105))
+- [SUBSTRING (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187748(v=sql.105))
+- [UNICODE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180059(v=sql.105))
+- [UPPER (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180055(v=sql.105))
+
+
+
+### 3.4.8 日期和时间函数
+
+[日期和时间数据类型及函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180878%28v%3dsql.105%29)的信息和示例
+
+
+
+
+
 ## 3.5 Transact-SQL 表达式
 
 [表达式](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190718(v=sql.105))是标识符、值和运算符的组合，SQL Server 可以对其求值以获取结果。访问或更改数据时，可在多个不同的位置使用数据。例如，可以将表达式用作要在查询中检索的数据的一部分，也可以用作查找满足一组条件的数据时的搜索条件。
