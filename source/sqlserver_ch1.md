@@ -165,3 +165,19 @@ XUESQL相当于 SQLBolt 的中文版，包含手册、在线练习，B站还有�
 [SQL Fiddle](http://sqlfiddle.com/) 支持 MySQL、SQL Server、SQLite、Oracle 等主流的 SQL 引擎，在这里可以选择练习的数据库以及版本号。相比于前面推荐的网站还提供教程，这个网站相当于提供环境。
 
 ![image-20200123215753887](./_static/sqlfiddle.png)
+
+
+
+### 1.6.5 w3resource
+
+[w3resource](https://www.w3resource.com/) 看上去是一个综合性教程网站（和w3cschool类似），网站是纯英文的，提供了mysql, Oracle, PostgreSQL, SQLite, MongoDB, Redis 等的教程，进入教程之后在教程结尾有练习题，练习题是提供运行环境以及正确答案的！
+
+![w3resource](./_static/w3resource.png)
+
+
+
+### 1.6.6 SQL学习网
+
+[SQL学习网](http://sample.jimstone.com.cn/xsql/) 提供了两张基础表以及基础运行环境，但是不清楚是Mysql 还是Sqlserver环境（大概率是mysql）。仅能进行简单的sql练习。
+
+![sql学习网](./_static/sql_learning.png)
