@@ -26,7 +26,7 @@ SELECT 语句从 SQL Server 中检索出数据，然后以一个或多个结果�
 
 例如下列 SELECT 语句查找单价超过 $40 的产品的产品 ID、名称以及标价
 
-```python
+```tsql
 SELECT ProductID, Name, ListPrice
 FROM Production.Product
 WHERE ListPrice > $40
@@ -47,7 +47,7 @@ ORDER BY 子句指定结果集将基于 ListPrice 列中的值按照**升序**�
 
 Select的主要子句可归纳如下:
 
-```python
+```tsql
 SELECT 
 	[ ALL | DISTINCT ] 
     [TOP (expression) [PERCENT] [ WITH TIES ] ] 
@@ -128,7 +128,7 @@ SELECT
 
   - TOP ( expression ) [ PERCENT ] [ WITH TIES ] ; expression 是指定返回行数的数值表达式，如果指定了 PERCENT，则是指返回的结果集行的百分比（由 expression 指定）
 
-  ```python
+  ```tsql
   TOP (120) /*返回120行*/
   TOP (15) PERCENT /* 返回前15%的行结果 */.
   TOP(@n) /* 返回变量n指定数量的行结果，比如：DECLARE @n AS BIGINT; SET @n = 2 */.
@@ -148,7 +148,7 @@ SELECT
 
   - 对数值列或常量使用算术运算符或函数进行的计算和运算
 
-    ```python
+    ```tsql
     SELECT ProductID, ROUND( (ListPrice * .9), 2) AS DiscountPrice
     FROM Production.Product
     WHERE ProductID = 748;
@@ -156,7 +156,7 @@ SELECT
 
   - 数据类型转换（cast）
 
-    ```python
+    ```tsql
     SELECT ( CAST(ProductID AS VARCHAR(10)) + ': '
            + Name ) AS ProductIDName
     FROM Production.Product;
@@ -164,7 +164,7 @@ SELECT
 
   - CASE 表达式
 
-    ```python
+    ```tsql
     SELECT ProductID, Name,
        CASE Class
           WHEN 'H' THEN ROUND( (ListPrice * .6), 2)
@@ -177,7 +177,7 @@ SELECT
 
   - 子查询
 
-    ```python
+    ```tsql
     SELECT Prd.ProductID, Prd.Name,
            (   SELECT SUM(OD.UnitPrice * OD.OrderQty)
                FROM AdventureWorks2008R2.Sales.SalesOrderDetail AS OD
@@ -216,7 +216,7 @@ FROM 子句可以指定
 
 3. 一个或多个派生表，这些派生表是 FROM 子句中的 SELECT 语句，由别名或用户指定的名称引用。FROM 子句中 SELECT 语句的结果集构成了外层 SELECT 语句所用的表。
 
-   ```python
+   ```tsql
    SELECT RTRIM(p.FirstName) + ' ' + LTRIM(p.LastName) AS Name,
     d.City
    FROM Person.Person AS p
@@ -241,7 +241,7 @@ FROM 子句可以指定
 
 **不需要 FROM 子句**的 SELECT 语句是那些不从数据库内的任何表中选择数据的 SELECT 语句。这些 SELECT 语句只从**局部变量**或**不对列进行操作**的 Transact-SQL 函数中选择数据:
 
-```python
+```tsql
 SELECT SYSDATETIME();
 SELECT @MyIntVariable;
 SELECT @@VERSION;
@@ -251,7 +251,7 @@ SELECT @@VERSION;
 
 ## 4.5 PIVOT
 
-```python
+```tsql
 -- PIVOT 语法
 SELECT <非透视的列>,
     [第一个透视的列] AS <列名称>,
@@ -275,7 +275,7 @@ FOR
 <可选的 ORDER BY 子句>;
 ```
 
-```python
+```tsql
 SELECT VendorID, [250] AS Emp1, [251] AS Emp2, [256] AS Emp3, [257] AS Emp4
 FROM 
 (SELECT PurchaseOrderID, EmployeeID, VendorID
@@ -320,7 +320,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - 比较运算符，例如：=、< >、< 和 >
 
-  ```python
+  ```tsql
   SELECT ProductID, Name
   FROM Production.Product
   WHERE Class = 'H'
@@ -329,7 +329,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - [范围](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191311(v=sql.105))（BETWEEN 和 NOT BETWEEN）
 
-  ```python
+  ```tsql
   -- 100到500之间
   SELECT ProductID, Name
   FROM Production.Product
@@ -339,7 +339,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - 列表（IN 和 NOT IN）
 
-  ```python
+  ```tsql
   -- 如果不适用IN，就需要用多个or
   -- 使用IN更简洁
   SELECT ProductID, Name
@@ -350,7 +350,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - [模式匹配](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187489(v=sql.105))（LIKE 和 NOT LIKE）
 
-  ```python
+  ```tsql
   SELECT ProductID, Name
   FROM Production.Product
   WHERE Name LIKE 'Ch%'
@@ -365,7 +365,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - Null 值（IS NULL 和 IS NOT NULL）
 
-  ```python
+  ```tsql
   SELECT s.Name
   FROM Sales.Customer c
   JOIN Sales.Store s
@@ -377,7 +377,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - 所有记录（=ALL、>ALL、<= ALL、ANY）
 
-  ```python
+  ```tsql
   -- 从其中已发货的产品量大于任何已发货的 H 类产品量的 SalesOrderDetail 表中检索订单和产品 ID
   SELECT OrdD1.SalesOrderID, OrdD1.ProductID
   FROM Sales.SalesOrderDetail OrdD1
@@ -390,7 +390,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - 条件的组合（AND、OR、NOT）
 
-  ```python
+  ```tsql
   SELECT ProductID, Name
   FROM Production.Product
   WHERE ListPrice < 500
@@ -409,7 +409,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 - 将通配符放在方括号 ([ ]) 中。若要搜索连字符 (-) 而不是使用它指定搜索范围，请将连字符作为方括号内的第一个字符：
 
-  ```mssql
+  ```tsql
   SELECT ColumnA FROM your_table
   WHERE ColumnA LIKE '9[-]5';
   ```
@@ -439,7 +439,7 @@ ORDER BY 子句中引用的列名必须明确地对应于 SELECT 列表中的列
 
 + ORDER BY 子句的准确结果取决于被排序的列的[排序规则](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187582%28v%3dsql.105%29)。对于 char、varchar、nchar 和 nvarchar 列，可以指定 ORDER BY 操作按照表或视图中定义的列的排**序规则之外的排序规则**执行。可以指定 Windows 排序规则名称或 SQL 排序规则名称。
 
-  ```python
+  ```tsql
   -- 使用 Traditional_Spanish 排序规则
   SELECT LastName FROM Person.Person
   ORDER BY LastName
@@ -500,7 +500,7 @@ ORDER BY 子句中引用的列名必须明确地对应于 SELECT 列表中的列
 
 比如下列联接因为是内部联接，因此也可以改写为在WHERE条件中指定联接。
 
-```sql
+```tsql
 -- FROM中指定联接（首选）
 SELECT pv.ProductID, v.BusinessEntityID, v.Name
 FROM Purchasing.ProductVendor AS pv 
@@ -520,7 +520,7 @@ WHERE pv.VendorID = v.VendorID
 
 在 FROM 子句中指定联接条件有助于将这些联接条件与 WHERE 子句中可能指定的其他任何搜索条件分开，建议用这种方法来指定联接。简化的 ISO FROM 子句联接语法如下：
 
-```sql
+```tsql
 FROM first_table  
 join_type  
 second_table 
@@ -577,7 +577,7 @@ UNION 的结果集列名与 UNION 运算符中第一个 SELECT 语句的结果�
 
 - 表中通过 UNION 运算所得到的列名称是从 UNION 语句中的第一个单独查询得到的。若要用新名称引用结果集中的某列（例如在 ORDER BY 子句中），必须按第一个 SELECT 语句中的方式引用该列
 
-  ```sql
+  ```tsql
   SELECT city AS Cities FROM stores_west
   UNION 
   SELECT city FROM stores_east
@@ -622,7 +622,7 @@ CTE 由表示 CTE 的表达式名称、可选列列表和定义 CTE 的查询组
 
 **CTE 的基本语法结构**如下：
 
-```sql
+```tsql
 WITH expression_name [ ( column_name [,...n] ) ]
 AS
 ( CTE_query_definition )
@@ -631,7 +631,7 @@ SELECT <column_list>
 FROM expression_name;
 ```
 
-```sql
+```tsql
 -- 定义 CTE 查询别名和列名称
 WITH Sales_CTE (SalesPersonID, SalesOrderID, SalesYear)
 AS

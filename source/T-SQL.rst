@@ -3,7 +3,7 @@
 ..
 
 3. Transact-SQL
-==============
+=================
 
 `Transact-SQL <https://baike.baidu.com/item/Transact-SQL/2756623?fr=aladdin>`__\ （又称
 T-SQL），是在 Microsoft SQL Server 和 Sybase SQL Server 上的 ANSI SQL
@@ -46,17 +46,27 @@ Microsoft SQL Server
 -  常规标识符 符合标识符的格式规则。在 Transact-SQL
    语句中使用常规标识符时不用将其分隔开。
 
-``SELECT *   FROM TableX   WHERE KeyCol = 1024``
+.. code-block:: tsql
+
+   SELECT *
+   FROM TableX
+   WHERE KeyCol = 1024
 
 -  分隔标识符 包含在双引号 (") 或者方括号 ([ ])
    内。不分隔符合标识符格式规则的标识符。例如：
 
-``SELECT *   FROM [TableX]          --用不用分隔符都可以   WHERE [KeyCol] = 1024  --用不用分隔符都可以``
+.. code-block:: tsql
+
+   SELECT *   FROM [TableX]    --用不用分隔符都可以
+   WHERE [KeyCol] = 1024  --用不用分隔符都可以
 
 在 Transact-SQL
 语句中，必须对不符合所有标识符规则的标识符进行分隔。例如：
 
-``SELECT *   FROM [My Table]      --My Table之间包含空格，因此必须包含分隔标识符   WHERE [order] = 10   --关键字必须包含分隔符``
+.. code-block:: tsql
+
+   SELECT *   FROM [My Table]  --My Table之间包含空格，因此必须包含分隔标识符
+   WHERE [order] = 10   --关键字必须包含分隔符
 
 常规标识符和分隔标识符包含的字符数必须在 1 到 128
 之间。对于本地临时表，标识符最多可以有 116 个字符。
@@ -350,9 +360,7 @@ smallmoney。这些数据类型可以使用下列任意一种货币符号。
 .. figure:: https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/images/ms188688.money01%28zh-cn%2csql.105%29.gif
    :alt: 货币符号表，十六进制值
 
-
-   货币符号表，十六进制值
-代表 `货币或货币值 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms179882(v=sql.105)>`__\ 的数据类型。
+代表 `货币或货币值 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms179882(v=sql.105)>`_ 的数据类型。
 
 
 +--------------+---------------------------------------------------------+----------+
