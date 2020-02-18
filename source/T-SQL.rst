@@ -687,8 +687,7 @@ CONVERT函数是将一种数据类型的表达式转换为另一种数据类型�
 除了COUNT 以外，聚合函数都会 **忽略空值** 。
 聚合函数经常与 SELECT 语句的GROUP BY 子句一起使用。
 
-`OVER
-子句 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461(v%3dsql.105)>`_ 
+`OVER子句 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461(v%3dsql.105)>`_ 
 可以跟在除CHECKSUM 以外的所有聚合函数的后面。
 
 .. code-block:: tsql
@@ -734,8 +733,7 @@ CONVERT函数是将一种数据类型的表达式转换为另一种数据类型�
 3.4.4.3 OVER子句
 ^^^^^^^^^^^^^^^^^^^^
 
-`OVER
-子句 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461%28v%3dsql.105%29>`_ 确定在应用关联的开窗函数之前，行集的分区和排序。
+OVER子句确定在应用关联的开窗函数之前，行集的分区和排序。
 
 开窗函数是在 ISO SQL 标准中定义的。SQL Server
 提供排名开窗函数和聚合开窗函数。窗口是用户指定的一组行。开窗函数计算从窗口派生的结果集中各行的值。
@@ -768,7 +766,7 @@ CONVERT函数是将一种数据类型的表达式转换为另一种数据类型�
 ~~~~~~~~~~~~~~~~
 
 `排名函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189798%28v%3dsql.105%29>`_
- 为分区中的每一行返回一个排名值。根据所用函数的不同，某些行可能与其他行接收到相同的值。排名函数具有不确定性。
+为分区中的每一行返回一个排名值。根据所用函数的不同，某些行可能与其他行接收到相同的值。排名函数具有不确定性。
 
 .. code-block:: tsql
 
