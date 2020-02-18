@@ -1,20 +1,16 @@
-.. role:: math(raw)
-   :format: html latex
-..
-
 3. Transact-SQL
 =================
 
-`Transact-SQL <https://baike.baidu.com/item/Transact-SQL/2756623?fr=aladdin>`__\ （又称
+`Transact-SQL <https://baike.baidu.com/item/Transact-SQL/2756623?fr=aladdin>`_ （又称
 T-SQL），是在 Microsoft SQL Server 和 Sybase SQL Server 上的 ANSI SQL
 实现，与 Oracle 的 PL/SQL 性质相近（不只是实现 ANSI
 SQL，也为自身数据库系统的特性提供实现支持），在 Microsoft SQL Server 和
 Sybase Adaptive Server 中仍然被使用为核心的查询语言。
 
-`官方文档 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189312(v=sql.105)>`__
+`官方文档 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189312(v=sql.105)>`_
 
 3.1 Transact-SQL 元素
----------------------
+-----------------------
 
 +--------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | Transact-SQL 元素                                                                                                        | 说明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -33,13 +29,13 @@ Sybase Adaptive Server 中仍然被使用为核心的查询语言。
 +--------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 3.2 Transact-SQL标识符
-----------------------
+------------------------
 
 Microsoft SQL Server
 中的所有内容都可以有标识符。服务器、数据库和数据库对象（例如表、视图、列、索引、触发器、过程、约束及规则等）都可以有标识符。大多数对象要求有标识符，但对有些对象（例如约束），标识符是可选的。
 
 3.2.1 标识符的种类
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 有两类标识符：
 
@@ -578,6 +574,387 @@ SQL Server
 +-------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------+
 | `文本和图像函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188353(v%3dsql.105)>`__                | 可更改 text 和 image 的值。                                         |
 +-------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------+
+
+3.4.1 `系统函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187786%28v%3dsql.105%29>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: tsql
+
+    -- 返回工作站标识号,是连接到 SQL Server的客户端计算机上的应用程序的进程 ID (PID)
+    SELECT HOST_ID();
+    -- 返回工作站名
+    SELECT HOST_NAME();
+    -- 创建 uniqueidentifier 类型的唯一值
+    SELECT NEWID();  
+    -- 确定表达式是否为有效的数值类型;ISNUMERIC ( expression )
+    SELECT distinct 
+        ISNUMERIC(sid),ISNUMERIC(ssex)
+    from Student 
+    -- 使用指定的替换值替换 NULL。
+    -- ISNULL ( check_expression , replacement_value )
+
+.. figure:: ./_static/system_function.png
+   :alt: system\_function
+
+
+3.4.1.1 CAST 和 CONVERT
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CAST 和
+CONVERT函数是将一种数据类型的表达式转换为另一种数据类型的表达式。
+
+.. code-block:: tsql
+
+    -- CAST()语法:
+    CAST ( expression AS data_type [ ( length ) ] )
+    -- CONVERT()语法:
+    CONVERT ( data_type [ ( length ) ] , expression [ , style ] )
+
+-  expression
+   任何有效的 `表达式 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190286(v%3dsql.105)>`_ 。
+-  data\_type 目标数据类型。这包括 xml、bigint 和
+   sql\_variant。不能使用别名数据类型。
+-  length 指定目标数据类型长度的可选整数。默认值为 30。
+-  style 指定 CONVERT 函数如何转换 expression 的整数表达式。如果样式为
+   NULL，则返回 NULL。该范围是由 data\_type
+   确定的。有关详细信息，请参阅“备注”部分。
+
+3.4.2 安全函数
+~~~~~~~~~~~~~~~~~~~~~
+
+对管理安全性有用的函数
+
+.. code-block:: tsql
+
+    -- 当前用户的名称, 两者等价
+    SELECT CURRENT_USER;
+    SELECT USER_NAME();
+    -- 数据库指定用户的标识号， 用户名缺省则表示当前用户
+    SELECT USER_ID ( [ 'user' ] );
+    SELECT USER_ID();
+    -- 数据库指定标识号的用户名
+    SELECT USER_NAME([ id ] );
+    SELECT USER_NAME();
+    -- 当前数据库中当前上下文的用户名
+    SELECT SESSION_USER;
+    -- 用户的登录标识号 SUSER_ID ( [ 'login' ] ) login为登录名
+    SELECT SUSER_ID('sa');
+    SELECT SUSER_ID(USER_NAME()); 
+    -- 根据用户登录标识号返回用户的登录标识名SUSER_NAME ( [ server_user_id ] )
+    SELECT SUSER_NAME(1);
+    -- 指定登录名的安全标识号 (SID)
+    SELECT SUSER_SID('sa');
+    -- 与安全标识号 (SID) 关联的登录名
+    SELECT SUSER_SNAME(0x01);
+
+.. figure:: ./_static/security_functions.png
+   :alt: security\_functions
+
+
+.. code-block:: tsql
+
+    -- 判断当前账户是否可以访问指定的数据库
+    SELECT HAS_DBACCESS ('database_name');
+    -- 判断当前用户是否为指定Microsoft Windows组或SQL Server数据库角色的成员
+    SELECT IS_MEMBER ( { 'group' | 'role' } );
+
+
+3.4.3 元数据函数
+~~~~~~~~~~~~~~~~~~~~~~
+
+返回有关数据库和数据库对象的信息
+
+.. code-block:: tsql
+
+    -- 与架构 ID 关联的架构名称 SCHEMA_NAME ([ schema_id ])
+    SELECT SCHEMA_NAME();
+    -- 与架构名称关联的架构ID SCHEMA_ID ([ schema_name ])
+    SELECT SCHEMA_ID();
+    -- 数据库标识 (ID)号, DB_ID ( [ 'database_name' ] ) 
+    SELECT DB_ID();
+    -- 数据库名称 DB_NAME ( [ database_id ] )
+    SELECT DB_NAME();
+    -- 指定表中指定列的定义长度（以字节为单位）
+    COL_LENGTH ( 'table' , 'column' ) 
+
+.. figure:: ./_static/meta_functions.png
+   :alt: meta\_functions
+
+3.4.4 聚合函数
+~~~~~~~~~~~~~~
+
+`聚合函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173454%28v%3dsql.105%29>`_ 对一组值执行计算，并返回单个值。
+除了COUNT 以外，聚合函数都会 **忽略空值** 。
+聚合函数经常与 SELECT 语句的GROUP BY 子句一起使用。
+
+`OVER
+子句 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461(v%3dsql.105)>`_ 
+可以跟在除CHECKSUM 以外的所有聚合函数的后面。
+
+.. code-block:: tsql
+
+    -- AVG ( [ ALL | DISTINCT ] expression ) 平均值
+    -- MIN ( [ ALL | DISTINCT ] expression ) 最小值
+    -- MAX ( [ ALL | DISTINCT ] expression ) 最大值
+    -- SUM ( [ ALL | DISTINCT ] expression ) 和
+    -- VAR ( [ ALL | DISTINCT ] expression ) 方差
+    -- VARP ( [ ALL | DISTINCT ] expression ) 总体方差
+    -- STDEV ( [ ALL | DISTINCT ] expression ) 标准差
+    -- STDEVP ( [ ALL | DISTINCT ] expression ) 总体标准差
+    -- COUNT ( { [ [ ALL | DISTINCT ] expression ] | * } ) 项数
+    -- COUNT_BIG ( { [ ALL | DISTINCT ] expression } | * ) 项数
+
+
+3.4.4.1 GROUPING()
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+指示是否聚合 GROUP BY 列表中的指定列表达式。在结果集中，如果
+`GROUPING <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178544%28v%3dsql.105%29>`__
+返回 1 则指示聚合；返回 0 则指示不聚合。如果指定了 GROUP BY，则 GROUPING
+只能用在 SELECT 列表、HAVING 和 ORDER BY 子句中。
+
+.. code-block:: tsql
+
+    -- 语法
+    GROUPING ( <column_expression> )
+
+
+3.4.4.2 GROUPING\_ID()
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+计算分组级别的函数。仅当指定了 GROUP BY时，
+`GROUPING\_ID <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb510624%28v%3dsql.105%29>`_
+才能在 SELECT 列表、HAVING 或 ORDER BY 子句中使用。
+
+.. code-block:: tsql
+
+    -- 语法
+    GROUPING_ID ( <column_expression>[ ,...n ] )
+
+3.4.4.3 OVER子句
+^^^^^^^^^^^^^^^^^^^^
+
+`OVER
+子句 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461%28v%3dsql.105%29>`_ 确定在应用关联的开窗函数之前，行集的分区和排序。
+
+开窗函数是在 ISO SQL 标准中定义的。SQL Server
+提供排名开窗函数和聚合开窗函数。窗口是用户指定的一组行。开窗函数计算从窗口派生的结果集中各行的值。
+
+可以在单个查询中将多个排名或聚合开窗函数与单个 FROM 子句一起使用。
+
+.. code-block:: tsql
+
+    -- 语法
+    -- 排名函数
+    Ranking Window Functions 
+    < OVER_CLAUSE > :: =
+        OVER ( [ PARTITION BY value_expression , ... [ n ] ]
+               <ORDER BY_Clause> )
+    -- 聚合函数
+    Aggregate Window Functions 
+    < OVER_CLAUSE > :: = 
+        OVER ( [ PARTITION BY value_expression , ... [ n ] ] )
+
+-  PARTITION BY
+   将结果集分为多个分区。开窗函数分别应用于每个分区，并为每个分区重新启动计算。
+-  value\_expression 指定对相应 FROM
+   子句生成的行集进行分区所依据的列。value\_expression 只能引用通过 FROM
+   子句可用的列。value\_expression
+   不能引用选择列表中的表达式或别名。value\_expression
+   可以是列表达式、标量子查询、标量函数或用户定义的变量。
+-  <ORDER BY 子句>指定应用排名开窗函数的顺序。
+
+3.4.5 排名函数
+~~~~~~~~~~~~~~~~
+
+`排名函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189798%28v%3dsql.105%29>`_
+ 为分区中的每一行返回一个排名值。根据所用函数的不同，某些行可能与其他行接收到相同的值。排名函数具有不确定性。
+
+.. code-block:: tsql
+
+    -- 排名可能间断（同值同排名）
+    RANK ( ) OVER ( [ < partition_by_clause > ] < order_by_clause > )
+	
+    -- 排名中没有任何间断 （同值同排名）
+    DENSE_RANK ( )  OVER ( [ <partition_by_clause> ] < order_by_clause > )
+	
+    -- 将有序分区中的行分发到指定数目(integer_expression)的组中。
+    NTILE (integer_expression) OVER ( [ <partition_by_clause> ] < order_by_clause > )
+	
+    -- 结果集分区内行的序列号，每个分区的第一行从 1 开始
+    ROW_NUMBER ( )  OVER ( [ <partition_by_clause> ] <order_by_clause> )
+
+
+.. code-block:: tsql
+
+    SELECT p.FirstName, p.LastName
+        ,ROW_NUMBER() OVER (ORDER BY a.PostalCode) AS 'Row Number'
+        ,RANK() OVER (ORDER BY a.PostalCode) AS 'Rank'
+        ,DENSE_RANK() OVER (ORDER BY a.PostalCode) AS 'Dense Rank'
+        ,NTILE(4) OVER (ORDER BY a.PostalCode) AS 'Quartile'
+        ,s.SalesYTD, a.PostalCode
+    FROM Sales.SalesPerson s 
+        INNER JOIN Person.Person p 
+            ON s.BusinessEntityID = p.BusinessEntityID
+        INNER JOIN Person.Address a 
+            ON a.AddressID = p.BusinessEntityID
+    WHERE TerritoryID IS NOT NULL 
+        AND SalesYTD <> 0;
+
+.. figure:: ./_static/rank_functions.png
+   :alt: rank\_functions
+   
+3.4.6 数学函数
+~~~~~~~~~~~~~~~~~
+
+算术函数（例如 ABS、CEILING、DEGREES、FLOOR、POWER、RADIANS 和
+SIGN）返回与输入值具有相同数据类型的值。三角函数和其他函数（包括
+EXP、LOG、LOG10、SQUARE 和 SQRT）将输入值转换为 **float** 并返回
+**float** 值。
+
+除 RAND
+以外的所有 `数学函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177516(v=sql.105)>`_ 都为确定性函数。
+这意味着在每次使用特定的输入值集调用这些函数时，它们都将返回相同的结果。仅当指定种子参数时 RAND 才是确定性函数。
+
+.. code-block:: tsql
+
+    --和角度、弧度相关的数学函数
+    --π的值
+    SELECT PI();
+    --RADIANS(numeric_expression) 返回角度值相应的弧度值
+    SELECT RADIANS(180.0);
+    --DEGREES(numeric_expression) 返回弧度值相应的角度值
+    SELECT DEGREES(PI());
+    --ACOS (float_expression) 反余弦, 取值范围从-1 到 1
+    SELECT ACOS(0.0);
+    --ASIN (float_expression) 反正弦, 取值范围从-1 到 1
+    SELECT ASIN(0.0);
+    --ATAN (float_expression) 反正切
+    SELECT ATAN(0.0);
+    --ATN2 (float_expression,float_expression) 两个向量间的反正切值
+    SELECT ATN2(0.0, 1.0);
+    --COS (float_expression) 余弦
+    SELECT COS(0.0);
+    --SIN (float_expression) 正弦
+    SELECT SIN(0.0);
+    --COT (float_expression) 余切
+    SELECT COT(1.0);
+    --TAN (float_expression)  正切
+    SELECT TAN(PI()/2);
+
+    --常用的一些数据函数
+    --SELECT ABS(numeric_expression)  绝对值
+    SELECT ABS(-1);
+    --CEILING (numeric_expression)大于或等于指定数值表达式的最小整数
+    SELECT CEILING(2.3);
+    --FLOOR (numeric_expression)小于或等于指定数值表达式的最大整数
+    SELECT FLOOR(2.3);
+    --ROUND(numeric_expression , length [ ,function ]) 舍入
+    --length 必须是 tinyint、smallint 或 int 类型的表达式。如果 length 为正数，则将 numeric_expression 舍入到 length 指定的小数位数。如果 length 为负数，则将 numeric_expression 小数点左边部分舍入到 length 指定的长度。
+    SELECT ROUND(123.4567,2);
+    SELECT ROUND(123.4567,-2);
+    --SIGN(numeric_expression)返回指定表达式的正号 (+1)、零 (0) 或负号 (-1)
+    SELECT SIGN(2);
+    SELECT SIGN(0);
+    SELECT SIGN(-2);
+    --RAND([ seed ])  0到1（不包括 0 和 1）之间的伪随机 float 值
+    SELECT RAND(100);
+    SELECT RAND();
+
+    --和指数、对数、幂指相关的数学函数
+    --EXP(float_expression)  e的指数值
+    --指数为1，返回e的值
+    SELECT EXP(1.0);  
+    --LOG(float_expression)  以e为底的对数值
+    SELECT LOG(2.718);
+    --LOG10(float_expression)  以10为底的对数值
+    SELECT LOG10(100);
+    --POWER(float_expression,y)  float_expression的y幂次的值
+    SELECT POWER(100,0.5);
+    --SQRT(float_expression) 平方根
+    SELECT SQRT(100);
+    --SQUARE(float_expression) 平方
+    SELECT SQUARE(10);
+
+3.4.7 字符串函数
+~~~~~~~~~~~~~~~~~~~
+
+所有内置字符串函数都是具有确定性的函数。
+`字符串函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181984(v=sql.105)>`_ 对字符串输入值执行操作，并返回字符串或数值。
+
+.. code-block:: tsql
+
+    --ASCII(character_expression) 返回最左侧字符的ASCII码值，仅第一个字符
+    --返回A的ASCII码值65
+    SELECT ASCII('ABCD');
+    --UNICODE('ncharacter_expression') 返回unicode字符串中第一个字符的unicode数值
+    SELECT UNICODE(N'ABCD');
+    --CHAR(integer_expression) 将ASCII码转换为字符，0至255间整数，否则返回NULL
+    SELECT CHAR(65);
+    SELECT CHAR(256);
+    --CHARINDEX(expression1,expression2[,start_location]) 
+    --expression2中搜索expression1 并返回其起始位置（如果找到）。搜索的起始位置为 start_location。
+    SELECT CHARINDEX('WANG','FIREWANG',1);
+
+    --SOUNDEX(character_expression)一个由四个字符组成的代码 (SOUNDEX)，用于评估两个字符串的相似性。
+    SELECT SOUNDEX('WANG');
+    SELECT SOUNDEX ('FIREWANG');
+    --DIFFERENCE(character_expression,character_expression)
+    --两个字符表达式的 SOUNDEX值 的差异。返回的整数是 SOUNDEX 值中相同字符的个数。返回的值从 0 到 4 不等：0 表示几乎不同或完全不同，4 表示几乎相同或完全相同
+    SELECT DIFFERENCE('WANG','FIREWANG')
+
+    --LEFT(character_expression,integer_expression)字符串从左边开始指定个数的字符
+    SELECT LEFT('FIREWANG',4);
+    --RIGHT(character_expression,integer_expression)字符串从右边开始指定个数的字符
+    SELECT RIGHT('FIREWANG',4);
+    --SUBSTRING (value_expression ,start_expression ,length_expression )
+    --返回字符表达式、二进制表达式、文本表达式或图像表达式的一部分。
+    SELECT SUBSTRING('FIREWANG',1,4);
+    SELECT SUBSTRING('FIREWANG',5,4);
+    --LEN ( string_expression )字符串长度，不含尾随空格
+    SELECT LEN('FIRE');
+    SELECT LEN('FIRE ');
+    -- LOWER(character_expression)  全部转换为小写字符
+    SELECT LOWER('FIREWANG');
+    -- UPPER(character_expression)  全部转换为大写字符
+    SELECT UPPER('firewang');
+    --LTRIM(character_expression)删除前导空格
+    SELECT LTRIM(' FIRE');
+    --RTRIM(character_expression)删除尾随空格
+    SELECT RTRIM('FIRE ');
+    --NCHAR(integer_expression) unicode值对应的unicode字符，0-65535
+    SELECT NCHAR(100);
+    SELECT NCHAR(256);
+    --PATINDEX('%pattern%',expression ) 在字符或者文本数据中搜索指定模式,
+    --返回指定表达式中某模式第一次出现的起始位置；否则返回0
+    SELECT PATINDEX('%FIRE%','FIREWANG');
+    --QUOTENAME ( 'character_string' [ , 'quote_character' ] ) 
+    --返回带有分隔符的 Unicode 字符串，分隔符的加入可使输入的字符串成为有效的 SQL Server 分隔标识符。
+    --用作分隔符的单字符字符串。可以是单引号 (')、左方括号或右方括号 ([], 默认值) 或者英文双引号 (")。
+    SELECT QUOTENAME('fire[]wang','""');
+    SELECT QUOTENAME('fire[]wang','''');
+    SELECT QUOTENAME('fire[]wang','[]');
+    SELECT QUOTENAME('fire[]wang')
+    --REPLACE(完整字符串, 要被替换的字符串 , 用于替换的字符串)  替换字符串
+    SELECT REPLACE('FIREWANG','FIRE','UPUP');
+    --REPLICATE(string_expression ,integer_expression)  重复指定次数字符串
+    SELECT REPLICATE('FIREWANG',2);
+    --REVERSE ( string_expression )  逆转字符串
+    SELECT REVERSE('FIREWANG');
+    --SPACE ( integer_expression ) 返回重复指定次数的空格
+    SELECT 'FIRE'+SPACE(2)+'WANG';
+
+    --STR(float_expression [ , length [ ,decimal ] ])
+    --将数字数据转换为字符串。
+    --length 总长度。它包括小数点、符号、数字以及空格。默认值为 10。
+    --decimal 小数点右边的小数位数。decimal 必须小于等于 16。
+    SELECT STR(123.456);
+    SELECT STR(123.456,5);
+    SELECT STR(123.456,6,1);
+    --STUFF(character_expression,start,length,character_expression)
+    --STUFF函数将字符串插入另一字符串。它在第一个字符串中从开始位置start删除指定长度length的字符；然后将第二个字符串插入第一个字符串的开始位置。
+    SELECT STUFF('FIREWANG',2,3,'1234567'); --F1234567WANG;
+
 
 3.5 Transact-SQL 表达式
 -----------------------

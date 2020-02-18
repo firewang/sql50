@@ -474,7 +474,7 @@ from Student
 
 CAST 和 CONVERT函数是将一种数据类型的表达式转换为另一种数据类型的表达式。
 
-```sql
+```tsql
 -- CAST()语法:
 CAST ( expression AS data_type [ ( length ) ] )
 -- CONVERT()语法:
@@ -632,7 +632,7 @@ Aggregate Window Functions
 
 [排名函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189798%28v%3dsql.105%29)为分区中的每一行返回一个排名值。根据所用函数的不同，某些行可能与其他行接收到相同的值。排名函数具有不确定性。
 
-```sql
+```tsql
 -- 排名可能间断（同值同排名）
 RANK ( ) OVER ( [ < partition_by_clause > ] < order_by_clause > )
 -- 排名中没有任何间断 （同值同排名）
@@ -643,7 +643,7 @@ NTILE (integer_expression) OVER ( [ <partition_by_clause> ] < order_by_clause > 
 ROW_NUMBER ( )  OVER ( [ <partition_by_clause> ] <order_by_clause> )
 ```
 
-```sql
+```tsql
 SELECT p.FirstName, p.LastName
     ,ROW_NUMBER() OVER (ORDER BY a.PostalCode) AS 'Row Number'
     ,RANK() OVER (ORDER BY a.PostalCode) AS 'Rank'
@@ -669,29 +669,65 @@ WHERE TerritoryID IS NOT NULL
 
 除 RAND 以外的所有[数学函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177516(v=sql.105))都为确定性函数。这意味着在每次使用特定的输入值集调用这些函数时，它们都将返回相同的结果。仅当指定种子参数时 RAND 才是确定性函数。
 
-- [ABS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189800(v=sql.105))
-- [ACOS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178627(v=sql.105))
-- [ASIN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181581(v=sql.105))
-- [ATAN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181746(v=sql.105))
-- [ATN2](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173854(v=sql.105))
-- [CEILING](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189818(v=sql.105))
-- [COS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188919(v=sql.105))
-- [COT](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188921(v=sql.105))
-- [DEGREES](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178566(v=sql.105))
-- [EXP](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms179857(v=sql.105))
-- [FLOOR](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178531(v=sql.105))
-- [LOG](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190319(v=sql.105))
-- [LOG10](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175121(v=sql.105))
-- [PI](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189512(v=sql.105))
-- [POWER](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174276(v=sql.105))
-- [RADIANS](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189742(v=sql.105))
-- [RAND](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177610(v=sql.105))
-- [ROUND](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175003(v=sql.105))
-- [SIGN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188420(v=sql.105))
-- [SIN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188377(v=sql.105))
-- [SQRT](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms176108(v=sql.105))
-- [SQUARE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173569(v=sql.105))
-- [TAN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190338(v=sql.105))
+```tsql
+--和角度、弧度相关的数学函数
+--π的值
+SELECT PI();
+--RADIANS(numeric_expression) 返回角度值相应的弧度值
+SELECT RADIANS(180.0);
+--DEGREES(numeric_expression) 返回弧度值相应的角度值
+SELECT DEGREES(PI());
+--ACOS (float_expression) 反余弦, 取值范围从-1 到 1
+SELECT ACOS(0.0);
+--ASIN (float_expression) 反正弦, 取值范围从-1 到 1
+SELECT ASIN(0.0);
+--ATAN (float_expression) 反正切
+SELECT ATAN(0.0);
+--ATN2 (float_expression,float_expression) 两个向量间的反正切值
+SELECT ATN2(0.0, 1.0);
+--COS (float_expression) 余弦
+SELECT COS(0.0);
+--SIN (float_expression) 正弦
+SELECT SIN(0.0);
+--COT (float_expression) 余切
+SELECT COT(1.0);
+--TAN (float_expression)  正切
+SELECT TAN(PI()/2);
+
+--常用的一些数据函数
+--SELECT ABS(numeric_expression)  绝对值
+SELECT ABS(-1);
+--CEILING (numeric_expression)大于或等于指定数值表达式的最小整数
+SELECT CEILING(2.3);
+--FLOOR (numeric_expression)小于或等于指定数值表达式的最大整数
+SELECT FLOOR(2.3);
+--ROUND(numeric_expression , length [ ,function ]) 舍入
+--length 必须是 tinyint、smallint 或 int 类型的表达式。如果 length 为正数，则将 numeric_expression 舍入到 length 指定的小数位数。如果 length 为负数，则将 numeric_expression 小数点左边部分舍入到 length 指定的长度。
+SELECT ROUND(123.4567,2);
+SELECT ROUND(123.4567,-2);
+--SIGN(numeric_expression)返回指定表达式的正号 (+1)、零 (0) 或负号 (-1)
+SELECT SIGN(2);
+SELECT SIGN(0);
+SELECT SIGN(-2);
+--RAND([ seed ])  0到1（不包括 0 和 1）之间的伪随机 float 值
+SELECT RAND(100);
+SELECT RAND();
+
+--和指数、对数、幂指相关的数学函数
+--EXP(float_expression)  e的指数值
+--指数为1，返回e的值
+SELECT EXP(1.0);  
+--LOG(float_expression)  以e为底的对数值
+SELECT LOG(2.718);
+--LOG10(float_expression)  以10为底的对数值
+SELECT LOG10(100);
+--POWER(float_expression,y)  float_expression的y幂次的值
+SELECT POWER(100,0.5);
+--SQRT(float_expression) 平方根
+SELECT SQRT(100);
+--SQUARE(float_expression) 平方
+SELECT SQUARE(10);
+```
 
 
 
@@ -699,30 +735,78 @@ WHERE TerritoryID IS NOT NULL
 
 所有内置字符串函数都是具有确定性的函数。[字符串函数](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181984(v=sql.105))对字符串输入值执行操作，并返回字符串或数值。
 
-- [ASCII (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177545(v=sql.105))
-- [CHAR (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187323(v=sql.105))
-- [CHARINDEX (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186323(v=sql.105))
-- [DIFFERENCE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188753(v=sql.105))
-- [LEFT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177601(v=sql.105))
-- [LEN (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190329(v=sql.105))
-- [LOWER (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174400(v=sql.105))
-- [LTRIM (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177827(v=sql.105))
-- [NCHAR (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms182673(v=sql.105))
-- [PATINDEX (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188395(v=sql.105))
-- [QUOTENAME (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms176114(v=sql.105))
-- [REPLACE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186862(v=sql.105))
-- [REPLICATE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174383(v=sql.105))
-- [REVERSE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180040(v=sql.105))
-- [REVERT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178632(v=sql.105))
-- [RIGHT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177532(v=sql.105))
-- [RTRIM (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178660(v=sql.105))
-- [SOUNDEX (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187384(v=sql.105))
-- [SPACE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187950(v=sql.105))
-- [STR (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189527(v=sql.105))
-- [STUFF (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188043(v=sql.105))
-- [SUBSTRING (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187748(v=sql.105))
-- [UNICODE (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180059(v=sql.105))
-- [UPPER (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180055(v=sql.105))
+```tsql
+--ASCII(character_expression) 返回最左侧字符的ASCII码值，仅第一个字符
+--返回A的ASCII码值65
+SELECT ASCII('ABCD');
+--UNICODE('ncharacter_expression') 返回unicode字符串中第一个字符的unicode数值
+SELECT UNICODE(N'ABCD');
+--CHAR(integer_expression) 将ASCII码转换为字符，0至255间整数，否则返回NULL
+SELECT CHAR(65);
+SELECT CHAR(256);
+--CHARINDEX(expression1,expression2[,start_location]) 
+--expression2中搜索expression1 并返回其起始位置（如果找到）。搜索的起始位置为 start_location。
+SELECT CHARINDEX('WANG','FIREWANG',1);
+
+--SOUNDEX(character_expression)一个由四个字符组成的代码 (SOUNDEX)，用于评估两个字符串的相似性。
+SELECT SOUNDEX('WANG');
+SELECT SOUNDEX ('FIREWANG');
+--DIFFERENCE(character_expression,character_expression)
+--两个字符表达式的 SOUNDEX值 的差异。返回的整数是 SOUNDEX 值中相同字符的个数。返回的值从 0 到 4 不等：0 表示几乎不同或完全不同，4 表示几乎相同或完全相同
+SELECT DIFFERENCE('WANG','FIREWANG')
+
+--LEFT(character_expression,integer_expression)字符串从左边开始指定个数的字符
+SELECT LEFT('FIREWANG',4);
+--RIGHT(character_expression,integer_expression)字符串从右边开始指定个数的字符
+SELECT RIGHT('FIREWANG',4);
+--SUBSTRING (value_expression ,start_expression ,length_expression )
+--返回字符表达式、二进制表达式、文本表达式或图像表达式的一部分。
+SELECT SUBSTRING('FIREWANG',1,4);
+SELECT SUBSTRING('FIREWANG',5,4);
+--LEN ( string_expression )字符串长度，不含尾随空格
+SELECT LEN('FIRE');
+SELECT LEN('FIRE ');
+-- LOWER(character_expression)  全部转换为小写字符
+SELECT LOWER('FIREWANG');
+-- UPPER(character_expression)  全部转换为大写字符
+SELECT UPPER('firewang');
+--LTRIM(character_expression)删除前导空格
+SELECT LTRIM(' FIRE');
+--RTRIM(character_expression)删除尾随空格
+SELECT RTRIM('FIRE ');
+--NCHAR(integer_expression) unicode值对应的unicode字符，0-65535
+SELECT NCHAR(100);
+SELECT NCHAR(256);
+--PATINDEX('%pattern%',expression ) 在字符或者文本数据中搜索指定模式,
+--返回指定表达式中某模式第一次出现的起始位置；否则返回0
+SELECT PATINDEX('%FIRE%','FIREWANG');
+--QUOTENAME ( 'character_string' [ , 'quote_character' ] ) 
+--返回带有分隔符的 Unicode 字符串，分隔符的加入可使输入的字符串成为有效的 SQL Server 分隔标识符。
+--用作分隔符的单字符字符串。可以是单引号 (')、左方括号或右方括号 ([], 默认值) 或者英文双引号 (")。
+SELECT QUOTENAME('fire[]wang','""');
+SELECT QUOTENAME('fire[]wang','''');
+SELECT QUOTENAME('fire[]wang','[]');
+SELECT QUOTENAME('fire[]wang')
+--REPLACE(完整字符串, 要被替换的字符串 , 用于替换的字符串)  替换字符串
+SELECT REPLACE('FIREWANG','FIRE','UPUP');
+--REPLICATE(string_expression ,integer_expression)  重复指定次数字符串
+SELECT REPLICATE('FIREWANG',2);
+--REVERSE ( string_expression )  逆转字符串
+SELECT REVERSE('FIREWANG');
+--SPACE ( integer_expression ) 返回重复指定次数的空格
+SELECT 'FIRE'+SPACE(2)+'WANG';
+
+--STR(float_expression [ , length [ ,decimal ] ])
+--将数字数据转换为字符串。
+--length 总长度。它包括小数点、符号、数字以及空格。默认值为 10。
+--decimal 小数点右边的小数位数。decimal 必须小于等于 16。
+SELECT STR(123.456);
+SELECT STR(123.456,5);
+SELECT STR(123.456,6,1);
+--STUFF(character_expression,start,length,character_expression)
+--STUFF函数将字符串插入另一字符串。它在第一个字符串中从开始位置start删除指定长度length的字符；然后将第二个字符串插入第一个字符串的开始位置。
+SELECT STUFF('FIREWANG',2,3,'1234567'); --F1234567WANG;
+```
 
 
 
