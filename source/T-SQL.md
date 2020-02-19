@@ -816,6 +816,250 @@ SELECT STUFF('FIREWANG',2,3,'1234567'); --F1234567WANG;
 
 
 
+#### 3.4.8.1 日期和时间数据类型
+
+下表列出了 Transact-SQL 的日期和时间数据类型。 
+
+| 数据类型                                                     | 格式                                      | 范围                                                         | 精确度     | 存储大小（字节） | 用户定义的秒的小数精度 | 时区偏移量 |
+| :----------------------------------------------------------- | :---------------------------------------- | :----------------------------------------------------------- | :--------- | :--------------- | :--------------------- | :--------- |
+| [time](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb677243(v%3dsql.105)) | hh:mm:ss[.nnnnnnn]                        | 00:00:00.0000000 到 23:59:59.9999999                         | 100 纳秒   | 3 到 5           | Y                      | N          |
+| [date](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630352(v%3dsql.105)) | YYYY-MM-DD                                | 0001-01-01 到 9999-12-31                                     | 1 天       | 3                | N                      | N          |
+| [smalldatetime](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms182418(v%3dsql.105)) | YYYY-MM-DD hh:mm:ss                       | 1900-01-01 到 2079-06-06                                     | 1 分钟     | 4                | N                      | N          |
+| [datetime](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187819(v%3dsql.105)) | YYYY-MM-DD hh:mm:ss[.nnn]                 | 1753-01-01 到 9999-12-31                                     | 0.00333 秒 | 8                | N                      | N          |
+| [datetime2](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb677335(v%3dsql.105)) | YYYY-MM-DD hh:mm:ss[.nnnnnnn]             | 0001-01-01 00:00:00.0000000 到 9999-12-31 23:59:59.9999999   | 100 纳秒   | 6 到 8           | Y                      | N          |
+| [datetimeoffset](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630289(v%3dsql.105)) | YYYY-MM-DD hh:mm:ss[.nnnnnnn] [+\|-]hh:mm | 0001-01-01 00:00:00.0000000 到 9999-12-31 23:59:59.9999999（以 UTC 时间表示） | 100 纳秒   | 8 到 10          | Y                      | Y          |
+
+```tsql
+-- 示例各个日期、时间数据类型
+SELECT 
+CAST('2020-02-02 12:13:14.1234567' AS time(7)) AS 'time', 
+CAST('2020-02-02 12:13:14.1234567' AS date) AS 'date', 
+CAST('2020-02-02 12:13:14.123' AS smalldatetime) AS 'smalldatetime',
+CAST('2020-02-02 12:13:14.123' AS datetime) AS 'datetime', 
+CAST('2020-02-02 12:13:14.1234567' AS datetime2(7)) AS 'datetime2',
+CAST('2020-02-02 12:13:14.1234567' AS datetimeoffset(7)) AS 'datetimeoffset';
+```
+
+![date_and_time](./_static/date_and_time.png)
+
+
+
+#### 3.4.8.2 系统日期和时间值
+
+所有系统日期和时间值均得自运行 SQL Server 实例的计算机的操作系统。
+
+**精度较高** 的系统日期和时间函数
+
+SQL Server 2008 R2 使用 **GetSystemTimeAsFileTime()**  Windows API 来获取日期和时间值。精确程度取决于运行 SQL Server 实例的计算机硬件和 Windows 版本。此 API 的精度固定为 100 纳秒。可通过使用 **GetSystemTimeAdjustment()** Windows API 来确定该精确度。
+
+| 函数                                                         | 语法                  | 返回值                                        | 返回数据类型      | 确定性 |
+| :----------------------------------------------------------- | :-------------------- | :-------------------------------------------- | :---------------- | :----- |
+| [SYSDATETIME](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630353(v%3dsql.105)) | SYSDATETIME ()        | 时区偏移量未包含在内。                        | datetime2(7)      | N      |
+| [SYSDATETIMEOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb677334(v%3dsql.105)) | SYSDATETIMEOFFSET ( ) | 时区偏移量包含在内。                          | datetimeoffset(7) | N      |
+| [SYSUTCDATETIME](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630387(v%3dsql.105)) | SYSUTCDATETIME ( )    | 日期和时间作为 UTC 时间（通用协调时间）返回。 | datetime2(7)      | N      |
+
+```tsql
+SELECT 
+  SYSDATETIME() AS 'SYSDATETIME',
+  SYSDATETIMEOFFSET() AS 'SYSDATETIMEOFFSET',
+  SYSUTCDATETIME() AS 'SYSUTCDATETIME';
+```
+
+![sysdatetime](./_static/sysdatetime.png)
+
+
+
+**精度较低** 的系统日期和时间函数
+
+| 函数                                                         | 语法              | 返回值                                                       | 返回数据类型 | 确定性 |
+| :----------------------------------------------------------- | :---------------- | :----------------------------------------------------------- | :----------- | :----- |
+| [CURRENT_TIMESTAMP](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188751(v%3dsql.105)) | CURRENT_TIMESTAMP | 返回包含计算机的日期和时间的 datetime2(7) 值，SQL Server 的实例正在该计算机上运行。时区偏移量未包含在内。 | datetime     | N      |
+| [GETDATE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188383(v%3dsql.105)) | GETDATE ( )       | 返回包含计算机的日期和时间的 datetime2(7) 值，SQL Server 的实例正在该计算机上运行。时区偏移量未包含在内。 | datetime     | N      |
+| [GETUTCDATE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms178635(v%3dsql.105)) | GETUTCDATE ( )    | 返回包含计算机的日期和时间的 datetime2(7) 值，SQL Server 的实例正在该计算机上运行。日期和时间作为 UTC 时间（通用协调时间）返回。 | datetime     | N      |
+
+```tsql
+SELECT 
+  CURRENT_TIMESTAMP AS 'CURRENT_TIMESTAMP',
+  GETDATE() AS 'DATE',
+  GETUTCDATE() AS 'UTCDATE';
+```
+
+![sysdate](./_static/sysdate.png)
+
+
+
+#### 3.4.8.3 日期和时间部分值
+
+| 函数                                                         | 语法                         | 返回值                                         | 返回数据类型 | 确定性 |
+| :----------------------------------------------------------- | :--------------------------- | :--------------------------------------------- | :----------- | :----- |
+| [DATENAME](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174395(v%3dsql.105)) | DATENAME ( datepart , date ) | 返回表示指定日期的指定 datepart 的**字符串**。 | nvarchar     | N      |
+| [DATEPART](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174420(v%3dsql.105)) | DATEPART ( datepart , date ) | 返回表示指定 date 的指定 datepart 的**整数**。 | int          | N      |
+| [DAY](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms176052(v%3dsql.105)) | DAY ( date )                 | 返回表示指定 date 的“日”部分的整数。           | int          | Y      |
+| [MONTH](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187813(v%3dsql.105)) | MONTH ( date )               | 返回表示指定 date 的“月”部分的整数。           | int          | Y      |
+| [YEAR](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186313(v%3dsql.105)) | YEAR ( date )                | 返回表示指定 date 的“年”部分的整数。           | int          | Y      |
+
+
+
+DATENAME() 和DATEPART() 的 datepart参数完全一样，并且datepart的全写和缩写完全等价，DATENAME()和DATEPART()仅在部分datepart下输出值的不同（当然两种输出值的数据类型是完全不一样的）
+
+| datepart参数 | 缩写        | DATENAME返回值 | DATEPART返回值 |
+| :----------- | :---------- | -------------- | -------------- |
+| year         | yy,yyyy     | 2020           | 2020           |
+| quarter      | qq,q        | 1              | 1              |
+| month        | mm, m       | February       | 2              |
+| dayofyear    | dy,y        | 33             | 33             |
+| day          | dd,d        | 2              | 2              |
+| week         | wk,ww       | 6              | 6              |
+| weekday      | dw          | Sunday         | 1              |
+| hour         | hh          | 12             | 12             |
+| minute       | mi, n       | 13             | 13             |
+| second       | ss, s       | 14             | 14             |
+| millisecond  | ms          | 123            | 123            |
+| microsecond  | mcs         | 123456         | 123456         |
+| nanosecond   | ns          | 123456700      | 123456700      |
+| TZoffset     | tz          | +08:00         | 480            |
+| ISO_WEEK     | isowk,isoww | 5              | 5              |
+
+```tsql
+SELECT '2020-02-02 12:13:14.1234567';
+SELECT 
+    DATENAME(year, '2020-02-02 12:13:14.1234567') as 'year',
+    DATENAME(quarter, '2020-02-02 12:13:14.1234567') as 'quarter',
+    DATENAME(month, '2020-02-02 12:13:14.1234567') as 'month',
+    DATENAME(dayofyear, '2020-02-02 12:13:14.1234567') as 'dayofyear',
+    DATENAME(day, '2020-02-02 12:13:14.1234567') as 'day',
+    DATENAME(week, '2020-02-02 12:13:14.1234567') as 'week',
+    DATENAME(weekday, '2020-02-02 12:13:14.1234567') as 'weekday',
+    DATENAME(hour, '2020-02-02 12:13:14.1234567') as 'hour',
+    DATENAME(minute, '2020-02-02 12:13:14.1234567') as 'minute',
+    DATENAME(second, '2020-02-02 12:13:14.1234567') as 'second',
+    DATENAME(millisecond, '2020-02-02 12:13:14.1234567') as 'millisecond',
+    DATENAME(microsecond, '2020-02-02 12:13:14.1234567') as 'mocrosecond',
+    DATENAME(nanosecond, '2020-02-02 12:13:14.1234567') as 'nanosecond',
+    --返回偏移量
+    DATENAME(TZoffset, '2020-02-02 12:13:14.1234567 +8:00') as 'TZoffset',
+    DATENAME(ISO_WEEK, '2020-02-02 12:13:14.1234567') as 'ISO_WEEK';
+SELECT 
+    DATEPART(yy, '2020-02-02 12:13:14.1234567') as 'year',
+    DATEPART(q, '2020-02-02 12:13:14.1234567') as 'quarter',
+    DATEPART(mm, '2020-02-02 12:13:14.1234567') as 'month',
+    DATEPART(dy, '2020-02-02 12:13:14.1234567') as 'dayofyear',
+    DATEPART(dd, '2020-02-02 12:13:14.1234567') as 'day',
+    DATEPART(wk, '2020-02-02 12:13:14.1234567') as 'week',
+    DATEPART(dw, '2020-02-02 12:13:14.1234567') as 'weekday',
+    DATEPART(hh, '2020-02-02 12:13:14.1234567') as 'hour',
+    DATEPART(mi, '2020-02-02 12:13:14.1234567') as 'minute',
+    DATEPART(ss, '2020-02-02 12:13:14.1234567') as 'second',
+    DATEPART(ms, '2020-02-02 12:13:14.1234567') as 'millisecond',
+    DATEPART(mcs, '2020-02-02 12:13:14.1234567') as 'mocrosecond',
+    DATEPART(ns, '2020-02-02 12:13:14.1234567') as 'nanosecond',
+    --返回偏移的分钟数
+    DATEPART(tz, '2020-02-02 12:13:14.1234567 +8:00') as 'TZoffset',
+    DATEPART(isowk, '2020-02-02 12:13:14.1234567') as 'ISO_WEEK';
+```
+
+
+
+![part_of_date_and_time](_static/part_of_date_and_time.png)
+
+
+
+对于DATEPART()，当 datepart 为 week (wk, ww) 或 weekday (dw) 时，返回值取决于使用 [SET DATEFIRST](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181598(v%3dsql.105)) 设置的值。
+
+任何年份的 1 月 1 日都用来定义 weekdatepart 的起始数字，例如：DATEPART (wk, 'Jan 1, xxxx') = 1，其中 xxxx 为任意年份。
+
+下表列出了针对每个不同的 SET DATEFIRST 参数，“2007-04-21”的 week 和 weekdaydatepart 返回值。1 月 1 日在 2007 年是星期日。4 月 21 日在 2007 年是星期六。SET DATEFIRST 7, Sunday 是美国英语的默认值。
+
+此时相当于星期天被指示为一周的第一天，因此星期六为最后一天，返回值为7。
+
+| SET DATEFIRST参数 | 返回的week | 返回的weekday |
+| :---------------- | :--------- | :------------ |
+| 1                 | 16         | 6             |
+| 2                 | 17         | 5             |
+| 3                 | 17         | 4             |
+| 4                 | 17         | 3             |
+| 5                 | 17         | 2             |
+| 6                 | 17         | 1             |
+| 7                 | 16         | 7             |
+
+
+
+对于DATEPART() 的 ISO_WEEK ，遵循ISO 8601， 包括 ISO 周-日期系统，即周的编号系统。
+
+**每周都与该周内星期四所在的年份关联**。例如，2004 年的第一周 (2004W01) 是指从 2003 年 12 月 29 日（星期一）到 2004 年 1 月 4 日（星期日）。一年中最大的周编号可能是 52 或 53。此样式的编号通常用于欧洲国家/地区，其他地方很少使用。
+
+不同的国家/地区的编号系统可能不符合 ISO 标准。现在至少可能存在六种编号系统，如下表所示：
+
+| 每周的第一天 | 一年的第一周包含                               | 分配两次的周 | 使用的国家/地区      |
+| :----------- | :--------------------------------------------- | :----------- | :------------------- |
+| 星期日       | 1 月 1 日，第一个星期六，其中有 1–7 天属于此年 | Y            | 美国                 |
+| 星期一       | 1 月 1 日，第一个星期日，其中有 1–7 天属于此年 | Y            | 大多数欧洲国家和英国 |
+| 星期一       | 1 月 4 日，第一个星期四，其中有 4-7 天属于此年 | N            | ISO 8601，挪威和瑞典 |
+| 星期一       | 1 月 7 日，第一个星期一，7 天均属于此年        | N            |                      |
+| 星期三       | 1 月 1 日，第一个星期二，其中有 1–7 天属于此年 | Y            |                      |
+| 星期六       | 1 月 1 日，第一个星期五，其中有 1–7 天属于此年 | Y            |                      |
+
+
+
+很容易发现，DAY(), MONTH(), YEAR() 的实现在 DATEPART() 中都已经实现了。
+
+
+
+#### 3.4.8.4 日期和时间差
+
+| 函数                                                         | 语法                                        | 返回值                                                     | 返回数据类型 | 确定性 |
+| :----------------------------------------------------------- | :------------------------------------------ | :--------------------------------------------------------- | :----------- | :----- |
+| [DATEDIFF](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189794(v%3dsql.105)) | DATEDIFF ( datepart , startdate , enddate ) | 返回两个指定日期之间所跨的日期或时间 datepart 边界的数目。 | int          | Y      |
+
+datepart参数与 DATEPART() 中除 TZoffset 和 ISO_WEEK 外完全一致，可以认为 DATEDIFF(datepart , startdate , enddate) 就是 DATEPART(datepart , startdate) 与 DATEPART(datepart , enddate) 的差值
+
+
+
+#### 3.4.8.5 修改日期和时间值
+
+| 函数                                                         | 语法                                      | 返回值                                                       | 返回数据类型                                  | 确定性 |
+| :----------------------------------------------------------- | :---------------------------------------- | :----------------------------------------------------------- | :-------------------------------------------- | :----- |
+| [DATEADD](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186819(v%3dsql.105)) | DATEADD (datepart , number , date )       | 通过将一个时间间隔与指定 date 的指定 datepart 相加，返回一个新的 datetime 值。 | date 参数的数据类型。                         | Y      |
+| [SWITCHOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb677244(v%3dsql.105)) | SWITCHOFFSET (DATETIMEOFFSET , time_zone) | SWITCH OFFSET 更改 DATETIMEOFFSET 值的时区偏移量并保留 UTC 值。 | datetimeoffset 具有的小数精度的DATETIMEOFFSET | Y      |
+| [TODATETIMEOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630335(v%3dsql.105)) | TODATETIMEOFFSET (expression , time_zone) | TODATETIMEOFFSET 将 datetime2 值转换为 datetimeoffset 值。datetime2 值被解释为指定 time_zone 的本地时间。 | 具有 datetime 参数的小数精度的 datetimeoffset | Y      |
+
+
+
+
+
+#### 3.4.8.6 设置或获取会话格式
+
+| 函数                                                         | 语法                                                         | 返回值                                                       | 返回数据类型 | 确定性 |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------- | :----- |
+| [@@DATEFIRST](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187766(v%3dsql.105)) | @@DATEFIRST                                                  | 返回对会话进行 SET DATEFIRST 操作所得结果的当前值。          | tinyint      | N      |
+| [SET DATEFIRST](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms181598(v%3dsql.105)) | SET DATEFIRST { number \| **@**number_var }                  | 将一周的第一天设置为从 1 到 7 的一个数字。                   | 不适用       | 不适用 |
+| [SET DATEFORMAT](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189491(v%3dsql.105)) | SET DATEFORMAT { format \| **@**format_var }                 | 设置用于输入 datetime 或 smalldatetime 数据的日期各部分（月/日/年）的顺序。 | 不适用       | 不适用 |
+| [@@LANGUAGE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177557(v%3dsql.105)) | @@LANGUAGE                                                   | 返回当前使用的语言的名称。@@LANGUAGE 不是日期或时间函数。但是，语言设置会影响日期函数的输出。 | 不适用       | 不适用 |
+| [SET LANGUAGE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms174398(v%3dsql.105)) | SET LANGUAGE { [ N ] **'**language**'** \| **@**language_var } | 设置会话和系统消息的语言环境。SET LANGUAGE 不是日期或时间函数。但是，语言设置会影响日期函数的输出。 | 不适用       | 不适用 |
+| [sp_helplanguage](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187357(v%3dsql.105)) | **sp_helplanguage** [ [ **@language =** ] **'**language**'** ] | 返回有关所有支持语言日期格式的信息。**sp_helplanguage** 不是日期或时间存储过程。但是，语言设置会影响日期函数的输出。 | 不适用       | 不适用 |
+
+
+
+#### 3.4.8.7 验证日期和时间值
+
+
+
+| 函数                                                         | 语法                  | 返回值                                                       | 返回数据类型 | 确定性                                                       |
+| :----------------------------------------------------------- | :-------------------- | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
+| [ISDATE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187347(v%3dsql.105)) | ISDATE ( expression ) | 确定 datetime 或 smalldatetime 输入表达式是否为有效的日期或时间值。 | int          | 只有与 CONVERT 函数一起使用，同时指定了 CONVERT 样式参数且样式不等于 0、100、9 或 109 时，ISDATE 才是确定的。 |
+
+
+
+#### 3.4.8.8 日期和时间相关主题
+
+| 主题                                                         | 说明                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [使用日期和时间数据](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180878(v%3dsql.105)) | 提供通用于日期和时间数据类型及函数的信息和示例。             |
+| [CAST 和 CONVERT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187928(v%3dsql.105)) | 提供有关在日期和时间值与字符串文字及其他日期和时间格式之间进行相互转换的信息。 |
+| [编写国际化 Transact-SQL 语句](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191307(v%3dsql.105)) | 提供使用 Transact-SQL 语句的数据库和数据库应用程序在不同语言之间的可移植性准则，或支持多种语言的数据库和数据库应用程序的可移植性准则。 |
+| [ODBC 标量函数 (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630290(v%3dsql.105)) | 提供有关可在 Transact-SQL 语句中使用的 ODBC 标量函数的信息。这包括 ODBC 日期和时间函数。 |
+| [分布式查询的数据类型映射](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175970(v%3dsql.105)) | 提供有关以下方面的信息：日期和时间数据类型对具有不同版本的 SQL Server 或不同访问接口的服务器之间的分布式查询有何影响。 |
+
 
 
 ## 3.5 Transact-SQL 表达式
