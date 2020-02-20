@@ -1,4 +1,4 @@
-# 3. Transact-SQL
+3. Transact-SQL
 
 [Transact-SQL](https://baike.baidu.com/item/Transact-SQL/2756623?fr=aladdin)（又称 T-SQL），是在 Microsoft SQL Server 和 Sybase SQL Server 上的 ANSI SQL 实现，与 Oracle 的 PL/SQL 性质相近（不只是实现 ANSI SQL，也为自身数据库系统的特性提供实现支持），在 Microsoft SQL Server 和 Sybase Adaptive Server 中仍然被使用为核心的查询语言。
 
@@ -489,6 +489,10 @@ CONVERT ( data_type [ ( length ) ] , expression [ , style ] )
   指定目标数据类型长度的可选整数。默认值为 30。
 - style
   指定 CONVERT 函数如何转换 expression 的整数表达式。如果样式为 NULL，则返回 NULL。该范围是由 data_type 确定的。有关详细信息，请参阅“备注”部分。
+
+
+
+cast() 主要用于数据类型之间的转换，而convert() 则将特定格式（style）的数据类型（expression）转为其他数据类型。
 
 
 
@@ -1020,10 +1024,28 @@ datepart参数与 DATEPART() 中除 TZoffset 和 ISO_WEEK 外完全一致，可�
 | 函数                                                         | 语法                                      | 返回值                                                       | 返回数据类型                                  | 确定性 |
 | :----------------------------------------------------------- | :---------------------------------------- | :----------------------------------------------------------- | :-------------------------------------------- | :----- |
 | [DATEADD](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms186819(v%3dsql.105)) | DATEADD (datepart , number , date )       | 通过将一个时间间隔与指定 date 的指定 datepart 相加，返回一个新的 datetime 值。 | date 参数的数据类型。                         | Y      |
-| [SWITCHOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb677244(v%3dsql.105)) | SWITCHOFFSET (DATETIMEOFFSET , time_zone) | SWITCH OFFSET 更改 DATETIMEOFFSET 值的时区偏移量并保留 UTC 值。 | datetimeoffset 具有的小数精度的DATETIMEOFFSET | Y      |
-| [TODATETIMEOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630335(v%3dsql.105)) | TODATETIMEOFFSET (expression , time_zone) | TODATETIMEOFFSET 将 datetime2 值转换为 datetimeoffset 值。datetime2 值被解释为指定 time_zone 的本地时间。 | 具有 datetime 参数的小数精度的 datetimeoffset | Y      |
+| [SWITCHOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb677244(v%3dsql.105)) | SWITCHOFFSET (DATETIMEOFFSET , time_zone) | 更改 DATETIMEOFFSET 值的时区偏移量并保留 UTC 值。            | datetimeoffset 具有的小数精度的DATETIMEOFFSET | Y      |
+| [TODATETIMEOFFSET](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630335(v%3dsql.105)) | TODATETIMEOFFSET (expression , time_zone) | 将 datetime2 值转换为 datetimeoffset 值。datetime2 值被解释为指定 time_zone 的本地时间。 | 具有 datetime 参数的小数精度的 datetimeoffset | Y      |
 
 
+
+DATEADD() 的datepart参数与 DATEPART() 中除 TZoffset 和 ISO_WEEK 外完全一致。 特别的是， 参数中的 number只能是整数，即int值，如果是浮点数，那么会自动被转换为 int值。
+
+
+
+SWITCHOFFSET (DATETIMEOFFSET , time_zone) 中 time_zone 是一个格式为 [+|-]TZH:TZM 的字符串，或是一个表示时区偏移量的带符号的整数（分钟数）。time_zone的范围为 +14 到 -13 ，或者是同样长度的分钟数。
+
+```tsql
+SELECT SWITCHOFFSET('2020-02-02 12:13:14.1234567','+08:00');
+SELECT SWITCHOFFSET('2020-02-02 12:13:14.1234567','-08:00');
+SELECT SWITCHOFFSET('2020-02-02 12:13:14.1234567',60);
+```
+
+![switchtimezone](./_static/switchtimezone.png)
+
+
+
+TODATETIMEOFFSET(expression , time_zone) 和 SWITCHOFFSET(DATETIMEOFFSET , time_zone)  用法类似，只不过需要 expression参数为返回值为datetime2数据类型的表达式。
 
 
 
@@ -1044,9 +1066,31 @@ datepart参数与 DATEPART() 中除 TZoffset 和 ISO_WEEK 外完全一致，可�
 
 
 
-| 函数                                                         | 语法                  | 返回值                                                       | 返回数据类型 | 确定性                                                       |
-| :----------------------------------------------------------- | :-------------------- | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| [ISDATE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187347(v%3dsql.105)) | ISDATE ( expression ) | 确定 datetime 或 smalldatetime 输入表达式是否为有效的日期或时间值。 | int          | 只有与 CONVERT 函数一起使用，同时指定了 CONVERT 样式参数且样式不等于 0、100、9 或 109 时，ISDATE 才是确定的。 |
+| 函数                                                         | 语法                  | 返回值                                                       | 返回数据类型  | 确定性                                                       |
+| :----------------------------------------------------------- | :-------------------- | :----------------------------------------------------------- | :------------ | :----------------------------------------------------------- |
+| [ISDATE](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187347(v%3dsql.105)) | ISDATE ( expression ) | 确定 datetime 或 smalldatetime 输入表达式是否为有效的日期或时间值。 | int ， 1或者0 | 只有与 CONVERT 函数一起使用，同时指定了 CONVERT 样式参数且样式不等于 0、100、9 或 109 时，ISDATE 才是确定的。 |
+
+expression: 字符串或者可以转换为字符串表达式。
+
+| ISDATE 表达式                                          | ISDATE 返回值 |
+| :----------------------------------------------------- | :------------ |
+| date、smalldatetime、datetime                          | 1             |
+| NULL                                                   | 0             |
+| 除字符串、Unicode 字符串或日期和时间以外的任何数据类型 | 0             |
+| text、ntext 或 image 数据类型的值                      | 0             |
+| 秒精度小数位数超过 3 的任何值（.0000 到 .0000000...n） | 0             |
+| 有效日期和无效值混在一起的任何值，例如 1995-10-1a      | 0             |
+
+```tsql
+SELECT ISDATE('12:13:14.1234567') AS 'time'; 
+SELECT ISDATE('2020-02-02') AS 'date';
+SELECT ISDATE('2020-02-02 12:13:14') AS 'smalldatetime';
+SELECT ISDATE('2020-02-02 12:13:14.123') AS 'datetime';
+SELECT ISDATE('2020-02-02 12:13:14.1234567') AS 'datetime2';
+SELECT ISDATE('2020-02-02 12:13:14.1234567 +8:00') AS 'datetimeoffset';
+```
+
+![isdate](./_static/isdate.png)
 
 
 
@@ -1054,11 +1098,80 @@ datepart参数与 DATEPART() 中除 TZoffset 和 ISO_WEEK 外完全一致，可�
 
 | 主题                                                         | 说明                                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| [使用日期和时间数据](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180878(v%3dsql.105)) | 提供通用于日期和时间数据类型及函数的信息和示例。             |
-| [CAST 和 CONVERT (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187928(v%3dsql.105)) | 提供有关在日期和时间值与字符串文字及其他日期和时间格式之间进行相互转换的信息。 |
+| [使用日期和时间数据](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms180878(v%3dsql.105)) | 提供通用于日期和时间数据类型及函数的信息和示例（包括日期和时间类型之间的相互转换）。 |
+| [CAST 和 CONVERT ](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms187928(v%3dsql.105)) | 提供有关在日期和时间值与字符串文字及其他日期和时间格式之间进行相互转换的信息。 |
 | [编写国际化 Transact-SQL 语句](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191307(v%3dsql.105)) | 提供使用 Transact-SQL 语句的数据库和数据库应用程序在不同语言之间的可移植性准则，或支持多种语言的数据库和数据库应用程序的可移植性准则。 |
-| [ODBC 标量函数 (Transact-SQL)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630290(v%3dsql.105)) | 提供有关可在 Transact-SQL 语句中使用的 ODBC 标量函数的信息。这包括 ODBC 日期和时间函数。 |
+| [ODBC 标量函数 )](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/bb630290(v%3dsql.105)) | 提供有关可在 Transact-SQL 语句中使用的 ODBC 标量函数的信息。这包括 ODBC 日期和时间函数。 |
 | [分布式查询的数据类型映射](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175970(v%3dsql.105)) | 提供有关以下方面的信息：日期和时间数据类型对具有不同版本的 SQL Server 或不同访问接口的服务器之间的分布式查询有何影响。 |
+
+
+
+利用cast()和convert() 转换日期和时间数据类型。
+
+```
+-- CAST()语法，数据类型之间相互转换:
+CAST ( expression AS data_type [ ( length ) ] )
+-- CONVERT()语法， 将指定style的数据类型值转化为另一数据类型:
+CONVERT ( data_type [ ( length ) ] , expression [ , style ] )
+```
+
+
+
+如果 expression 为 date 或 time 数据类型，则 style 可以为下表中显示的值之一。其他值作为 0 进行处理。SQL Server 使用科威特算法来支持阿拉伯样式（回历）的日期格式。
+
+| 不带世纪数位 (yy) (1) | 带世纪数位 (yyyy)        | 标准                  | 输入/输出 (3)                       |
+| :-------------------- | :----------------------- | :-------------------- | :---------------------------------- |
+| -                     | **0** 或 **100** (1,2)   | 默认                  | mon dd yyyy hh:miAM（或 PM）        |
+| **1**                 | **101**                  | 美国                  | mm/dd/yyyy                          |
+| **2**                 | **102**                  | ANSI                  | yy.mm.dd                            |
+| **3**                 | **103**                  | 英国/法国             | dd/mm/yyyy                          |
+| **4**                 | **104**                  | 德国                  | dd.mm.yy                            |
+| **5**                 | **105**                  | 意大利                | dd-mm-yy                            |
+| **6**                 | **106**(1)               | -                     | dd mon yy                           |
+| **7**                 | **107**(1)               | -                     | mon dd, yy                          |
+| **8**                 | **108**                  | -                     | hh:mi:ss                            |
+| -                     | **9** 或 **109**（1、2） | 默认设置 + 毫秒       | mon dd yyyy hh:mi:ss:mmmAM（或 PM） |
+| **10**                | **110**                  | 美国                  | mm-dd-yy                            |
+| **11**                | **111**                  | 日本                  | yy/mm/dd                            |
+| **12**                | **112**                  | ISO                   | yymmdd     yyyymmdd                 |
+| -                     | **13** 或 **113** (1,2)  | 欧洲默认设置 + 毫秒   | dd mon yyyy hh:mi:ss:mmm(24h)       |
+| **14**                | **114**                  | -                     | hh:mi:ss:mmm(24h)                   |
+| -                     | **20** 或 **120** (2)    | ODBC 规范             | yyyy-mm-dd hh:mi:ss(24h)            |
+| -                     | **21** 或 **121** (2)    | ODBC 规范（带毫秒）   | yyyy-mm-dd hh:mi:ss.mmm(24h)        |
+| -                     | **126** (4)              | ISO8601               | yyyy-mm-ddThh:mi:ss.mmm（无空格）   |
+| -                     | **127**(6, 7)            | 带时区 Z 的 ISO8601。 | yyyy-mm-ddThh:mi:ss.mmmZ（无空格）  |
+| -                     | **130** (1,2)            | 回历 (5)              | dd mon yyyy hh:mi:ss:mmmAM          |
+| -                     | **131** (2)              | 回历 (5)              | dd/mm/yy hh:mi:ss:mmmAM             |
+
+
+
+```tsql
+--style指定的是源数据的格式
+--新数据的格式由数据类型来决定
+SELECT CONVERT(date, 'Jan 22 2020 12:13:14', 100);
+SELECT CONVERT(datetime, '01/22/2020', 101);
+SELECT CONVERT(datetime2, '2020.01.22', 102);
+SELECT CONVERT(smalldatetime, '22/01/2020', 103);
+SELECT CONVERT(date, '22/01/2020', 104);
+SELECT CONVERT(date, '22-01-2020', 105);
+SELECT CONVERT(date, '22 Jan 2020', 106);
+SELECT CONVERT(date, 'Jan 22,2020', 107);
+SELECT CONVERT(time(5), '12:13:14', 108);
+SELECT CONVERT(smalldatetime, 'Jan 22 2020 12:13:14.123', 109);
+SELECT CONVERT(date, '01-22-2020', 110);
+SELECT CONVERT(date, '2020/01/22', 111);
+SELECT CONVERT(date, '20200122', 112);
+SELECT CONVERT(date, '22 Jan 2020 12:13:14.123', 113);
+SELECT CONVERT(time(7), '12:13:14.123', 114);
+SELECT CONVERT(datetime, '2020-01-22 12:13:14', 120); 
+SELECT CONVERT(datetime, '2020-01-22 12:13:14.123', 121);
+SELECT CONVERT(smalldatetime, '2020-01-22T12:13:14.123', 126);
+SELECT CONVERT(smalldatetime, '2020-01-22T12:13:14.123', 127);
+```
+
+![convert_style1](_static/convert_style1.png)
+
+![convert_style1](./_static/convert_style2.png)
 
 
 
