@@ -1,10 +1,10 @@
-# 2. SQL
+# SQL
 
 SQL(Structured Query Language，结构化查询语言)是访问和操作关系数据库的标准语言，是高级的非过程化编程语言。只要是关系数据库，都可以使用 SQL 进行访问和控制。
 
 
 
-## 2.1 SQL发展历史
+## SQL发展历史
 
 - 在1970年代初，由IBM公司San Jose,California研究实验室的埃德加·科德发表将数据组成表格的应用原则（Codd's Relational Algebra）。1974年，同一实验室的D.D.Chamberlin和R.F. Boyce对Codd's Relational Algebra在研制关系数据库管理系统System R中，研制出一套规范语言-SEQUEL(Structured English QUEry Language)，并在1976年11月的IBM Journal of R&D上公布新版本的SQL（叫SEQUEL/2）。1980年改名为SQL。
 - 1979年ORACLE公司首先提供商用的SQL，IBM公司在DB2 和SQL/DS数据库系统中也实现了SQL。
@@ -14,7 +14,7 @@ SQL(Structured Query Language，结构化查询语言)是访问和操作关系�
 - 美国联邦政府，发布在The Federal Information Processing Standard Publication(FIPS PUB)127
 - 目前，所有主要的关系数据库管理系统支持某些形式的SQL， 大部分数据库打算遵守ANSI SQL89标准。
 
-## 2.2 SQL特点
+## SQL特点
 
 - SQL语言集数据查询、数据操纵、数据定义和数据控制功能于一体
 - 面向集合的语言
@@ -22,7 +22,7 @@ SQL(Structured Query Language，结构化查询语言)是访问和操作关系�
 - 类似自然语言，简洁易用
 - 自含式语言，又是嵌入式语言。可独立使用，也可嵌入到宿主语言中。
 
-## 2.3 SQL基本语句
+## SQL基本语句
 
 - DQL（data query language），数据查询语言；也就是 SELECT 语句，用于查询数据库中的数据和信息
 - DML（data manipulation language），数据操作语言；用于对表中的数据进行增加（INSERT）、修改（UPDATE）、删除（DELETE）以及合并（MERGE）操作
@@ -32,7 +32,7 @@ SQL(Structured Query Language，结构化查询语言)是访问和操作关系�
 
 
 
-## 2.4 NoSQL
+## NoSQL
 
 随着互联网的发展和大数据的兴起，出现了各种各样的非关系（NoSQL）数据库。NoSQL 代表 Not only SQL，表明它是针对传统关系数据库的补充和升级，而不是为了替代关系数据库。
 
@@ -48,7 +48,7 @@ NoSQL 数据库主要用于解决关系数据库在某些特定场景下的局�
 
 Oracle、SQL Server 以及 PostgreSQL 同样也进行了类似的扩展，可以支持原生的 XML 和 JSON 数据，并且提供了许多标准的 SQL 接口。
 
-## 2.5 NewSQL
+## NewSQL
 
 为了同时获得关系数据库对于事务的支持和标准的 SQL 接口，以及非关系数据库的高度扩展性和高性能。如今市场上已经出现了一类新型关系型数据库系统：NewSQL 数据库。
 

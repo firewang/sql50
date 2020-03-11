@@ -1,6 +1,6 @@
-# 4. Select查询
+# Select查询
 
-## 4.1 查询基础知识
+## 查询基础知识
 
 查询是对存储在 SQL Server 中的数据的一种请求。可以使用下列几种形式发出查询：
 
@@ -43,7 +43,7 @@ ORDER BY 子句指定结果集将基于 ListPrice 列中的值按照**升序**�
 
 
 
-## 4.2 SELECT语句组成
+## SELECT语句组成
 
 Select的主要子句可归纳如下:
 
@@ -93,7 +93,7 @@ SELECT
 
   ORDER BY 之所以重要，是因为关系理论规定除非已经指定 ORDER BY，否则不能假设结果集中的行带有任何序列。如果结果集行的顺序对于 SELECT 语句来说很重要，那么在该语句中就必须使用 ORDER BY 子句。
 
-## 4.3 SELECT 语句的逻辑处理顺序
+## SELECT 语句的逻辑处理顺序
 
 1. FROM
 2. ON
@@ -109,7 +109,7 @@ SELECT
 
 
 
-## 4.4 选择列表
+## 选择列表
 
 结果集列的以下特性由[选择列表](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191173(v=sql.105))中的下列表达式定义：
 
@@ -193,7 +193,7 @@ SELECT
 
 
 
-## 4.4 FROM子句
+## FROM子句
 
 在每一个要从表或视图中检索数据的 SELCET 语句中，都需要使用 FROM 子句。使用 FROM 子句可以：
 
@@ -249,7 +249,7 @@ SELECT @@VERSION;
 
 
 
-## 4.5 PIVOT
+## PIVOT
 
 ```tsql
 -- PIVOT 语法
@@ -300,7 +300,7 @@ VendorID    Emp1    Emp2    Emp3    Emp4
 
 
 
-## 4.6 WHERE和HAVING筛选结果
+## WHERE和HAVING筛选结果
 
 SELECT 语句中的 WHERE 和 HAVING 子句可以控制用于生成结果集的源表中的行。WHERE 和 HAVING 是筛选器。这两个子句指定一系列搜索条件，只有那些满足搜索条件的行才用于生成结果集。我们称满足搜索条件的行包含在结果集中。
 
@@ -399,7 +399,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 
 
-### 4.6.1 搜索通配符字符
+### 搜索通配符字符
 
 当可以搜索通配符字符。有两种方法可指定平常用作通配符的字符：
 
@@ -421,7 +421,7 @@ WHERE 和 HAVING 子句中的搜索条件或限定条件可以包括：
 
 
 
-## 4.7 ORDER BY 排序
+## ORDER BY 排序
 
 [ORDER BY](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms188723(v=sql.105)) 子句按一列或多列（最多 8,060 个字节）对查询结果进行排序。
 
@@ -449,7 +449,7 @@ ORDER BY 子句中引用的列名必须明确地对应于 SELECT 列表中的列
 
 
 
-## 4.8 子查询 subquery
+## 子查询 subquery
 
 子查询是一个嵌套在 SELECT、INSERT、UPDATE 或 DELETE 语句或其他子查询中的查询。任何允许使用表达式的地方都可以使用子查询。
 
@@ -487,7 +487,7 @@ ORDER BY 子句中引用的列名必须明确地对应于 SELECT 列表中的列
 
 
 
-## 4.9 联接 join
+## 联接 join
 
 通过[联接](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191517(v=sql.105))，可以从两个或多个表中根据各个表之间的逻辑关系来检索数据。
 
@@ -557,7 +557,7 @@ second_table
 
 
 
-## 4.10 UNION运算符
+## UNION运算符
 
 [UNION 运算符](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191141(v=sql.105))可以将两个或多个 SELECT 语句的结果组合成一个结果集。
 
@@ -586,7 +586,7 @@ UNION 的结果集列名与 UNION 运算符中第一个 SELECT 语句的结果�
 
 
 
-## 4.11 EXCEPT和INTERSECT半联接
+## EXCEPT和INTERSECT半联接
 
 使用 [EXCEPT 和 INTERSECT 运算符](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms191255(v=sql.105))可以比较两个或更多 SELECT 语句的结果并返回**非重复值**。
 
@@ -600,7 +600,7 @@ UNION 的结果集列名与 UNION 运算符中第一个 SELECT 语句的结果�
 
 
 
-## 4.12 公用表表达式 WITH
+## 公用表表达式 WITH
 
 [公用表表达式 (CTE)](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms190766(v=sql.105)) 可以认为是在单个 SELECT、INSERT、UPDATE、DELETE 或 CREATE VIEW 语句的执行范围内定义的**临时结果集**。CTE 与派生表类似，具体表现在**不存储为对象**，并且**只在查询期间有效**。与派生表的不同之处在于，CTE 可自引用，还**可在同一查询中引用多次**。
 

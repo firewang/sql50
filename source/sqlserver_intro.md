@@ -1,6 +1,6 @@
-# 1. SQL Server 介绍
+# SQL Server 介绍
 
-## 1.1 基本功能
+## 基本功能
 
 SQL Server是由Microsoft开发和推广的以客户/服务器（c/s）模式访问、使用Transact-SQL语言的[关系数据库管理系统](https://baike.baidu.com/item/关系数据库管理系统)（DBMS），它最初是由Microsoft、Sybase和Ashton-Tate三家公司共同开发的，并于1988年推出了第一个OS/2版本。Microsoft SQL Server近年来不断更新版本，1996年，Microsoft 推出了SQL Server 6.5版本；1998年，SQL Server 7.0版本和用户见面；SQL Server 2000是Microsoft公司于2000年推出，目前最新版本是2019年份推出的SQL SERVER 2019。
 
@@ -24,7 +24,7 @@ SQL Server 2019 更是使用统一的数据平台实现业务转型，附带 Apa
 
 
 
-## 1.2 版本信息
+## 版本信息
 
 企业版 Enterprise、开发版 Developer、快速版 Express。
 
@@ -36,9 +36,9 @@ Express这个版本是最为基本的版本，是学习、开发桌面、Web 及
 
 
 
-## 1.3 安装说明
+## 安装说明
 
-### 1.3.1 下载
+### 下载
 
 2008版本下载地址：[https://www.microsoft.com/zh-cn/download/details.aspx?id=30438](https://www.microsoft.com/zh-cn/download/details.aspx?id=30438)  
 
@@ -58,8 +58,6 @@ SQL Server Management Studio Express (SQLManagementStudio)此版本不包含数�
 
 简单来说，只需要数据库，选择SQLEXPR，只需要数据库管理工具，选择SQLManagementStudio，数据库和管理工具都要，那么选择SQLEXPRWT，一般我们选择SQLEXPRWT。
 
-### 
-
 2019版本下载地址：[https://www.microsoft.com/zh-cn/sql-server/sql-server-downloads](https://www.microsoft.com/zh-cn/sql-server/sql-server-downloads)
 
 2019版本的下载要简单的多，因为对上述文件的选择是在安装过程中分步选择安装的，按安装过程中的提示操作即可。
@@ -70,7 +68,7 @@ SQL Server Management Studio Express (SQLManagementStudio)此版本不包含数�
 
 
 
-### 1.3.2 安装
+### 安装
 
 windows下的安装都是很简单直白的（下一步流），可以参考下述链接
 
@@ -82,7 +80,7 @@ windows下的安装都是很简单直白的（下一步流），可以参考下�
 
 
 
-## 1.4 连接到数据库
+## 连接到数据库
 
 可以使用[下列工具](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms175995(v=sql.105))来访问和更改 SQL Server 实例（数据库）中的数据：
 
@@ -128,7 +126,7 @@ SQL Server Management Studio 提供了两种方法来访问和更改数据：
 
 
 
-## 1.5 帮助信息
+## 帮助信息
 
 + 微软官方在github会有[sqlserver示例](https://github.com/Microsoft/sql-server-samples/tree/master/samples)
 
@@ -136,11 +134,11 @@ SQL Server Management Studio 提供了两种方法来访问和更改数据：
 
 
 
-## 1.6 在线SQL 平台
+## 在线SQL 平台
 
 当然了，很多时候，我们可能只是想学习SQL，提升SQL查询的技能，不希望在本地安装软件（服务），那么在线型的SQL平台就特别得符合我们的需求。
 
-### 1.6.1 SQLZOO
+### SQLZOO
 
 [SQLZOO](https://sqlzoo.net/)包括了 SQL 学习的教程和参考资料，支持 SQL Sever、Oracle、MySQL、DB2、PostgreSQL等多个 SQL 搜索引擎，现在支持英日中(繁体)，建议还是用英文来看。
 
@@ -148,19 +146,19 @@ SQL Server Management Studio 提供了两种方法来访问和更改数据：
 
 
 
-### 1.6.2 SQLBolt
+### SQLBolt
 
 [SQLBolt](https://sqlbolt.com/) 是一个适合小白学习 SQL 的网站，这里由浅及深的介绍了 SQL 的知识，每一个章节是一组相关的 SQL 知识点，且配备着相应的练习。这个网站的优点是教程是交互型的。仅支持英文。
 
 ![image-20200123214825320](./_static/sqlbolt.png)
 
-### 1.6.3 XUESQL
+### XUESQL
 
 XUESQL相当于 SQLBolt 的中文版，包含手册、在线练习，B站还有讲解 SQL 的视频可以食用。优点是查询结果秒级响应（测试了前几个页面），纯中文。当然了，讲解视频非常入门级，完全针对小白型的（这个是优点还是缺点还真不好定论）。
 
 ![xuesql](./_static/xuesql.png)
 
-### 1.6.4 SQL Fiddle
+### SQL Fiddle
 
 [SQL Fiddle](http://sqlfiddle.com/) 支持 MySQL、SQL Server、SQLite、Oracle 等主流的 SQL 引擎，在这里可以选择练习的数据库以及版本号。相比于前面推荐的网站还提供教程，这个网站相当于提供环境。
 
@@ -168,7 +166,7 @@ XUESQL相当于 SQLBolt 的中文版，包含手册、在线练习，B站还有�
 
 
 
-### 1.6.5 w3resource
+### w3resource
 
 [w3resource](https://www.w3resource.com/) 看上去是一个综合性教程网站（和w3cschool类似），网站是纯英文的，提供了mysql, Oracle, PostgreSQL, SQLite, MongoDB, Redis 等的教程，进入教程之后在教程结尾有练习题，练习题是提供运行环境以及正确答案的！
 
@@ -176,7 +174,7 @@ XUESQL相当于 SQLBolt 的中文版，包含手册、在线练习，B站还有�
 
 
 
-### 1.6.6 SQL学习网
+### SQL学习网
 
 [SQL学习网](http://sample.jimstone.com.cn/xsql/) 提供了两张基础表以及基础运行环境，但是不清楚是Mysql 还是Sqlserver环境（大概率是mysql）。仅能进行简单的sql练习。
 

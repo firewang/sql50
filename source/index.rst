@@ -8,13 +8,18 @@ Welcome to sql50's documentation!
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
-   sqlserver_ch1
+   sqlserver_intro
    SQL
    T-SQL
    Select
    sql50
-   
+   sqlite_intro
+   sqlite_syntax
+   sqlite_by_python
+   sqlite_by_c
+   sqlite_references
 
 Indices and tables
 ==================
