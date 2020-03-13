@@ -730,6 +730,7 @@ OVER子句确定在应用关联的窗口函数之前，行集的分区和排序�
     Aggregate Window Functions 
     < OVER_CLAUSE > :: = 
         OVER ( [ PARTITION BY value_expression , ... [ n ] ] 
+			   [ORDER BY order_by_expression ]
 			   [ <ROW or RANGE clause> ]  
 	         )
 
@@ -780,11 +781,11 @@ OVER子句确定在应用关联的窗口函数之前，行集的分区和排序�
 聚合函数
 ~~~~~~~~~~~~~~
 
-`聚合函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173454%28v%3dsql.105%29>`_ 对一组值执行计算，并返回单个值。
+`聚合函数 <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/aggregate-functions-transact-sql?view=sql-server-ver15>`_ 对一组值执行计算，并返回单个值。
 除了COUNT 以外，聚合函数都会 **忽略空值** 。
 聚合函数经常与 SELECT 语句的GROUP BY 子句一起使用。
 
-`OVER子句 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms189461(v%3dsql.105)>`_ 
+`OVER子句 <https://docs.microsoft.com/zh-cn/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15>`_ 
 可以跟在除CHECKSUM 以外的所有聚合函数的后面。
 
 ::
@@ -800,7 +801,70 @@ OVER子句确定在应用关联的窗口函数之前，行集的分区和排序�
     -- COUNT ( { [ [ ALL | DISTINCT ] expression ] | * } ) 项数
     -- COUNT_BIG ( { [ ALL | DISTINCT ] expression } | * ) 项数
 
+::
 
+    -- 聚合函数+窗口函数
+    Aggregate Window Functions
+    < OVER_CLAUSE > :: =
+        OVER ( 
+        	[ PARTITION BY value_expression , ... [ n ] ]
+        	[ORDER BY order_by_expression ]
+             )
+	
+.. code-block:: tsql
+
+    --SQL SERVER 2012 及以上版本
+    select
+      s.sid,
+      sc.cid,
+      s.sname,
+      s.ssex,
+      sc.score,
+      AVG(sc.score) over(partition BY s.ssex) as [不同性别平均分],
+      AVG(sc.score) over(partition BY sc.cid) as [不同课程平均分],
+      SUM(sc.score) over(partition BY sc.sid) as [个人总分],
+      SUM(sc.score) over(partition BY sc.sid order by sc.cid) as [个人累计总分]
+    from Student s
+    left join Score sc
+    on sc.sid = s.sid
+    order by s.sid, sc.cid
+	
+.. figure:: ./_static/window_aggregate_function.png
+   :alt: window\_aggregate\_function
+	
+
+.. code-block:: tsql
+
+    --SQL SERVER 2008 及以前版本
+	--自连接，利用课程ID来作为累计合计的标志位
+    with myquery (sid,cid,sname,ssex,score,[不同性别平均分],[不同课程平均分],[个人总分]) as 
+    (select
+      s.sid,
+      sc.cid,
+      s.sname,
+      s.ssex,
+      sc.score,
+      AVG(sc.score) over(partition BY s.ssex) as [不同性别平均分],
+      AVG(sc.score) over(partition BY sc.cid) as [不同课程平均分],
+      SUM(sc.score) over(partition BY sc.sid) as [个人总分]
+    from Student s
+    left join Score sc
+    on sc.sid = s.sid
+    )
+    select 
+    q1.*,
+    sum(q2.score) as [个人累计得分]
+    from myquery as q1
+    inner join myquery as q2
+    on q1.sid = q2.sid
+    and q1.cid >= q2.cid
+    group by q1.sid,q1.cid,q1.sname,q1.ssex,q1.score,q1.[不同性别平均分],q1.[不同课程平均分],q1.[个人总分]
+    order by q1.sid, q1.cid
+	
+.. figure:: ./_static/window_aggregate_function_before2008.png
+   :alt: window\_aggregate\_function\_before2008
+	
+	
 GROUPING()
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
