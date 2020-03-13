@@ -560,7 +560,12 @@ SQL Server
 +-------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------+
 | 函数类别                                                                                                                            | 说明                                                                |
 +=====================================================================================================================================+=====================================================================+
-| `聚合函数 (Transact-SQL) <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173454(v%3dsql.105)>`__       | 执行的操作是将多个值合并为一个值。如 COUNT、SUM、MIN 和 MAX。       |
+| `聚合函数 <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/aggregate-functions-transact-sql?view=sql-server-ver15>`__          | 执行的操作是将多个值合并为一个值。如 COUNT、SUM、MIN 和 MAX。       |
++-------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------+
+| `分析函数 <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/analytic-functions-transact-sql?view=sql-server-ver15>`__           | 分析函数基于一组行计算聚合值。 但是，与聚合函数不同，               |
+|                                                                                                                                     | 分析函数可能针对每个组返回多行。                                    |
+|                                                                                                                                     | 可以使用分析函数来计算移动平均线、运行总计、百分比                  |
+|                                                                                                                                     | 或一个组内的前 N 个结果。                                           |
 +-------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------+
 | `配置函数 <https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms173823(v%3dsql.105)>`__                      | 是一种标量函数，可返回有关配置设置的信息。                          |
 +-------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------+
@@ -696,6 +701,82 @@ cast() 主要用于数据类型之间的转换，而convert() 则将特定格式
 .. figure:: ./_static/meta_functions.png
    :alt: meta\_functions
 
+OVER子句（窗口函数）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OVER子句确定在应用关联的窗口函数之前，行集的分区和排序。
+`窗口函数 <https://docs.microsoft.com/zh-cn/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15>`_，
+也可以被称为OLAP函数或分析函数。
+
+窗口函数是在 ISO SQL 标准中定义的。SQL Server
+提供排名开窗函数和聚合开窗函数。窗口是用户指定的一组行。窗口函数计算从窗口派生的结果集中各行的值。
+
+可以在单个查询中将多个排名或聚合窗口函数与单个 FROM 子句一起使用。
+窗口函数是整个SQL语句最后被执行的部分，这意味着窗口函数是在SQL查询的结果集上进行的，
+因此不会受到Group By， Having，Where子句的影响。
+
+:: 
+
+    -- 语法
+    -- 排名函数
+    Ranking Window Functions 
+    < OVER_CLAUSE > :: =
+        OVER ( [ PARTITION BY value_expression , ... [ n ] ]
+               <ORDER BY_Clause> 
+	           [ <ROW or RANGE clause> ]  
+			  )
+			  
+    -- 聚合函数
+    Aggregate Window Functions 
+    < OVER_CLAUSE > :: = 
+        OVER ( [ PARTITION BY value_expression , ... [ n ] ] 
+			   [ <ROW or RANGE clause> ]  
+	         )
+
+-  PARTITION BY
+   将结果集分为多个分区。开窗函数分别应用于每个分区，并为每个分区重新启动计算。
+-  value\_expression 指定对相应 FROM
+   子句生成的行集进行分区所依据的列。value\_expression 只能引用通过 FROM
+   子句可用的列。value\_expression
+   不能引用选择列表中的表达式或别名。value\_expression
+   可以是列表达式、标量子查询、标量函数或用户定义的变量。
+-  <ORDER BY 子句>指定按其执行窗口函数计算的逻辑顺序。
+-  order_by_expression 
+   指定用于进行排序的列或表达式。 
+   order_by_expression 只能引用可供 FROM 子句使用的列 。 不能将整数指定为表示列名或别名。
+-  ROWS \| RANGE
+   适用于：SQL Server 2012 (11.x) 及更高版本。
+   通过指定分区中的起点和终点，进一步限制分区中的行数。 
+   这是通过按照逻辑关联或物理关联对当前行指定某一范围的行实现的。 物理关联通过使用 ROWS 子句实现。
+
+**窗口函数（over子句）优势**
+
++ 类似Group By的聚合
++ 非顺序的访问数据
++ 可对窗口函数使用分析函数、聚合函数和排名函数
++ 简化了SQL代码（消除Join）
++ 消除中间表
+
+
+**窗口函数（over子句）使用场景**
+
+1. 经典top N问题
+
+  比如：找出每个科目排名前N的学生
+
+2. 经典排名问题
+
+  业务需求“在每组内排名”，比如：每个班级（科目）按成绩来排名
+
+3. 在每个组里比较的问题
+
+  比如查找每个组里大于平均值的数据，可以有两种方法：
+
+  方法1，使用 `窗口函数实现 <https://www.cnblogs.com/CareySon/p/3411176.html>`_
+
+  方法2，使用关联子查询   
+
+   
 聚合函数
 ~~~~~~~~~~~~~~
 
@@ -746,55 +827,6 @@ GROUPING\_ID()
     -- 语法
     GROUPING_ID ( <column_expression>[ ,...n ] )
 
-OVER子句
-^^^^^^^^^^^^^^^^^^^^
-
-OVER子句确定在应用关联的开窗函数之前，行集的分区和排序。
-
-开窗函数是在 ISO SQL 标准中定义的。SQL Server
-提供排名开窗函数和聚合开窗函数。窗口是用户指定的一组行。开窗函数计算从窗口派生的结果集中各行的值。
-
-可以在单个查询中将多个排名或聚合开窗函数与单个 FROM 子句一起使用。
-
-:: 
-
-    -- 语法
-    -- 排名函数
-    Ranking Window Functions 
-    < OVER_CLAUSE > :: =
-        OVER ( [ PARTITION BY value_expression , ... [ n ] ]
-               <ORDER BY_Clause> )
-    -- 聚合函数
-    Aggregate Window Functions 
-    < OVER_CLAUSE > :: = 
-        OVER ( [ PARTITION BY value_expression , ... [ n ] ] )
-
--  PARTITION BY
-   将结果集分为多个分区。开窗函数分别应用于每个分区，并为每个分区重新启动计算。
--  value\_expression 指定对相应 FROM
-   子句生成的行集进行分区所依据的列。value\_expression 只能引用通过 FROM
-   子句可用的列。value\_expression
-   不能引用选择列表中的表达式或别名。value\_expression
-   可以是列表达式、标量子查询、标量函数或用户定义的变量。
--  <ORDER BY 子句>指定应用排名开窗函数的顺序。
-
-**窗口函数（over子句）使用场景**
-
-1. 经典top N问题
-
-  比如：找出每个科目排名前N的学生
-
-2. 经典排名问题
-
-  业务需求“在每组内排名”，比如：每个班级（科目）按成绩来排名
-
-3. 在每个组里比较的问题
-
-  比如查找每个组里大于平均值的数据，可以有两种方法：
-
-  方法1，使用窗口函数实现
-
-  方法2，使用关联子查询
 
 
 排名函数
@@ -836,6 +868,17 @@ OVER子句确定在应用关联的开窗函数之前，行集的分区和排序�
 
 .. figure:: ./_static/rank_functions.png
    :alt: rank\_functions
+
+分析函数
+~~~~~~~~~~~~~~~~
+
+=======================================================================================================================  ====================================================================================================================================
+`CUME_DIST <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/cume-dist-transact-sql?view=sql-server-ver15>`_         `LEAD <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/lead-transact-sql?view=sql-server-ver15>`_ 
+`FIRST_VALUE <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/first-value-transact-sql?view=sql-server-ver15>`_     `PERCENTILE_CONT <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15>`_
+`LAG <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/lag-transact-sql?view=sql-server-ver15>`_                     `PERCENTILE_DISC <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/percentile-disc-transact-sql?view=sql-server-ver15>`_
+`LAST_VALUE <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/last-value-transact-sql?view=sql-server-ver15>`_       `PERCENT_RANK <https://docs.microsoft.com/zh-cn/sql/t-sql/functions/percent-rank-transact-sql?view=sql-server-ver15>`_
+=======================================================================================================================  ====================================================================================================================================
+
    
 数学函数
 ~~~~~~~~~~~~~~~~~
