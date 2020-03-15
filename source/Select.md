@@ -249,7 +249,11 @@ SELECT @@VERSION;
 
 
 
-## PIVOT
+## PIVOT和UNPIVOT
+
+[PIVOT](https://docs.microsoft.com/zh-cn/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15) 通过将表达式中的一个列的唯一值转换为输出中的多列（即**行转列**），来轮替表值表达式。 PIVOT 在需要对最终输出所需的所有剩余列值执行聚合时运行聚合。 与 PIVOT 执行的操作相反，UNPIVOT 将表值表达式的列轮换为行（即**列转行**）。
+
+但是需要注意得是，UNPIVOT 并不完全是 PIVOT 的逆操作。PIVOT 执行聚合，并将多个可能的行合并为输出中的一行。 UNPIVOT 不重现原始表值表达式的结果，因为行已被合并。 
 
 ```tsql
 -- PIVOT 语法
@@ -297,6 +301,71 @@ VendorID    Emp1    Emp2    Emp3    Emp4
 1500        3       4       4       5
 */
 ```
+
+```tsql
+-- 查看每个人的年龄，性别，三门课成绩
+select
+sid,sname,sage,ssex,[语文],[数学],[英语]
+from
+(
+select a.sid,a.sname,a.sage,a.ssex,c.cname,b.score
+  from Student a
+  left join Score b 
+  on a.sid=b.sid
+  left join Course c
+  on b.cid = c.cid
+) source_table
+pivot(
+  sum(score) for
+cname in (
+  [语文],[数学],[英语]
+)
+     ) t
+```
+
+![student_pivot](./_static/all_info.png)
+
+将上述结果新建表 Student_pivot
+
+```sql
+-- unpivot 语法
+SELECT [columns not unpivoted],
+	 [unpivot_column],
+       [value_column],
+FROM
+(<source query>)
+AS <alias for the source data>
+UNPIVOT ( [value_column] FOR [unpivot_column] IN ( <column_list> ) ) 
+   AS <alias for unpivot>
+Where:
+
+--[columns not unpivoted]: 没有被转换的列名。
+--[unpivot_column]: 转换的各列所汇总到的单列的名称。
+--[value_column]: 转换的各列数据所汇总到的单列的名称。
+--<source query>: 源数据。
+--<alias for the source data>: 为源数据转换后的表确定一个别名。
+--<column_list>:  被转换的列的各列的名称。
+--<alias for unpivot>: 转换操作的整个过程的别名。
+```
+
+```tsql
+select 
+  sid,
+  sname,
+  sage,
+  ssex,
+  subject,
+  score
+from 
+(select * from Student_pivot) as sp
+UNPIVOT(
+  score for subject in ([语文],[数学],[英语]) 
+) as t
+```
+
+![unpivot](./_static/unpivot.png)
+
+特别注意那些成绩为空的行记录都没有出现！
 
 
 
