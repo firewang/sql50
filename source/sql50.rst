@@ -197,13 +197,28 @@ SQL笔试50题
 .. code-block:: sql
 
     select * from
-    Student where sid in 
+		Student 
+	where sid in 
     (
     select s1.sid from 
     (select * from Score where Score.cid = '01') s1,
     (select * from Score where Score.cid = '02') s2
     where 
     s1.sid = s2.sid)
+	
+使用 INTERSECT简化SQL
+
+.. code-block:: tsql
+
+    select * from
+		Student 
+	where sid in
+    (
+    select sid from Score where Score.cid = '01' 
+    INTERSECT
+    select sid from Score where Score.cid = '02'
+    )
+
 
 .. figure:: ./_static/sql50_7.png
    :alt: sql50\_7
