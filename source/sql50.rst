@@ -55,14 +55,14 @@ SQL笔试50题
     insert into Score values('07' , '03' , 98);
     create table Student_pivot (
     sid varchar(10),sname nvarchar(10),sage datetime,ssex nvarchar(10), "语文" int, "数学" int,"英语" int);
-    insert into Student values('01' , N'赵雷' , '1990-01-01' , N'男', 80, 90, 99);
-    insert into Student values('02' , N'钱电' , '1990-12-21' , N'男', 70, 60, 80);
-    insert into Student values('03' , N'孙风' , '1990-05-20' , N'男', 80, 80, 80);
-    insert into Student values('04' , N'李云' , '1990-08-06' , N'男', 50, 30, 20);
-    insert into Student values('05' , N'周梅' , '1991-12-01' , N'女', 76, 87, null);
-    insert into Student values('06' , N'吴兰' , '1992-03-01' , N'女', 31, null, 34);
-    insert into Student values('07' , N'郑竹' , '1989-07-01' , N'女', null, 89, 98);
-    insert into Student values('08' , N'王菊' , '1990-01-20' , N'女', null,null,null);
+    insert into Student_pivot values('01' , N'赵雷' , '1990-01-01' , N'男', 80, 90, 99);
+    insert into Student_pivot values('02' , N'钱电' , '1990-12-21' , N'男', 70, 60, 80);
+    insert into Student_pivot values('03' , N'孙风' , '1990-05-20' , N'男', 80, 80, 80);
+    insert into Student_pivot values('04' , N'李云' , '1990-08-06' , N'男', 50, 30, 20);
+    insert into Student_pivot values('05' , N'周梅' , '1991-12-01' , N'女', 76, 87, null);
+    insert into Student_pivot values('06' , N'吴兰' , '1992-03-01' , N'女', 31, null, 34);
+    insert into Student_pivot values('07' , N'郑竹' , '1989-07-01' , N'女', null, 89, 98);
+    insert into Student_pivot values('08' , N'王菊' , '1990-01-20' , N'女', null,null,null);
 
 .. figure:: ./_static/sql50.jpg
    :alt: table\_scheme
