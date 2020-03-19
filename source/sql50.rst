@@ -1014,3 +1014,10 @@ SQL笔试50题
       ssex
     from Student 
     where month(sage) = month(getdate())+1
+
+CheatSheets
+------------
+
++ `MS CheatSheet <./_static/cheatsheets/sql-server-cheat-sheet.pdf>`_
++ `CheatSheet by databasestar <./_static/cheatsheets/sql_cheat_sheet_sqlserver.pdf>`_
++ `CheatSheet by davechild <./_static/cheatsheets/davechild_sql-server.pdf>`_
