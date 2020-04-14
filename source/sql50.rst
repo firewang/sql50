@@ -1015,6 +1015,83 @@ SQL笔试50题
     from Student 
     where month(sage) = month(getdate())+1
 
+	
+附加题
+---------
+
+获得连续的日期
+,,,,,,,,,,,,,,,
+
+利用while循环
+................
+
+.. code-block:: tsql
+
+   -- 创建临时表#DateTime存储日期
+   CREATE TABLE #DateTime
+   (
+       DayTime DATE
+   );
+   -- 连续获取天
+   DECLARE @StartTime DATE = '2019-03-08', --设置开始时间
+           @EndTime   DATE = '2019-03-18' --设置结束时间
+   -- 循环获取日期插入临时表
+   WHILE @StartTime <= @EndTime
+   BEGIN
+       INSERT INTO #DateTime (DayTime)
+       VALUES (@StartTime);
+	   --修改dateadd参数实现连续年、月、日等
+       SET @StartTime = DATEADD(DAY, 1, @StartTime); 
+   END;
+   
+   SELECT DayTime FROM #DateTime;
+   
+   -- 删除临时表 
+   DROP TABLE #DateTime;
+   
+
+利用CTE
+..........
+
+.. code-block:: tsql
+
+   DECLARE @StartTime DATE = '2018-12-08', -- 开始时间
+   @EndTime DATE = '2019-03-18' -- 结束时间
+   ;
+   -- 获取连续天
+   WITH CteDateDay AS
+   (
+   SELECT @StartTime DayTime
+   UNION ALL
+   SELECT DATEADD(DAY,1,DayTime) DayTime FROM CteDateDay
+   WHERE DayTime<@EndTime
+   )
+   SELECT DayTime FROM CteDateDay
+   OPTION (MAXRECURSION 0);
+   
+   -- 获取连续月
+   WITH CteDateMonth AS
+   (
+   SELECT CONVERT(VARCHAR(7),@StartTime,120) MonthTime
+   UNION ALL
+   SELECT CONVERT(VARCHAR(7),DATEADD(MONTH,1,CAST(MonthTime+'-01' AS DATE)),120) DayTime FROM CteDateMonth
+   WHERE MonthTime<CONVERT(VARCHAR(7),@EndTime,120)
+   )
+   SELECT MonthTime FROM CteDateMonth
+   OPTION (MAXRECURSION 0);
+   
+   -- 获取连续年
+   WITH CteDateYear AS
+   (
+   SELECT DATEPART(YEAR,@StartTime) YearTime
+   UNION ALL
+   SELECT YearTime+1 DayTime FROM CteDateYear
+   WHERE YearTime<DATEPART(YEAR,@EndTime)
+   )
+   SELECT YearTime FROM CteDateYear
+   OPTION (MAXRECURSION 0)
+	
+	
 CheatSheets
 ------------
 
